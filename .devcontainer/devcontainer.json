@@ -1,0 +1,25 @@
+{
+  "name": "Rust and Python Development Environment",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12"
+    },
+    "ghcr.io/devcontainers/features/rust:1": {
+      "version": "latest"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "rust-lang.rust-analyzer",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "bungcip.better-toml",
+        "serayuzgur.crates"
+      ]
+    }
+  },
+  "postCreateCommand": "pip install --upgrade pip",
+  "remoteUser": "vscode"
+}
