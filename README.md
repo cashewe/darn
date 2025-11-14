@@ -1,4 +1,4 @@
-# darn (welsh, meaning 'piece')
+# darn-it (welsh, meaning 'piece' or more favourably, 'chunk')
 opinionated text chunker that respects markdown format. Built in rust for speed / safety, but hooked in to python via maturin or otherwise to allow Data Scientists to use it for text processing.
 
 the tool will receive a *markdown string* (i.e. anything that isn't valid markdown will not be guaranteed to work, dont especially care if someone tries anyways though) and output 'chunks' - an exhaustive collection of all the text in the original string but split up according to rules.
