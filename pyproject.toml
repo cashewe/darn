@@ -4,7 +4,10 @@ build-backend = "maturin"
 
 [project]
 name = "darn_it"
-requires-python = ">=3.8"
+description = "An opinionated chunker for markdown formatted text"
+authors = [{ name = "John C Ll Stokes", email = "johnclstokes@hotmail.com" }]
+readme = "README.md"
+requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
