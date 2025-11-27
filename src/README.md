@@ -2,7 +2,7 @@
 
 so general approach to the problem atm is:
 
-- parse string to mdast, using prewritten package as this is incredibly complex work
+- parse string to mdast, using prewritten package as this is incredibly complex work (https://docs.rs/markdown/latest/markdown/fn.to_mdast.html)
 - for each rule (thou shalt not split mid way into a table...) write a 'rule' which outputs a list of indexes where you can or maybe cant split, lest you incur a penalty
 - with the set of all these index lists, run an optimisation alg to find the best points to split on to minimise penalty costs
 - return the split text to the user
