@@ -1,0 +1,83 @@
+use enum_map::Enum;
+use markdown::mdast::Node;
+use markdown::mdast::Node::*;
+
+
+/// All MDAST Nodes minus the extra slop i.e. 'text', 'volume', etc...
+#[derive(Debug, Copy, Clone, Enum, PartialEq, Eq, Hash)]
+pub enum NodeType {
+    Root,
+    Blockquote,
+    FootnoteDefinition,
+    MdxJsxFlowElement,
+    List,
+    MdxjsEsm,
+    Toml,
+    Yaml,
+    Break,
+    InlineCode,
+    InlineMath,
+    Delete,
+    Emphasis,
+    MdxTextExpression,
+    FootnoteReference,
+    Html,
+    Image,
+    ImageReference,
+    MdxJsxTextElement,
+    Link,
+    LinkReference,
+    Strong,
+    Text,
+    Code,
+    Math,
+    MdxFlowExpression,
+    Heading,
+    Table,
+    ThematicBreak,
+    TableRow,
+    TableCell,
+    ListItem,
+    Definition,
+    Paragraph,
+}
+
+/// map from MDAST Node to simplified NodeType type
+pub fn map_node(node: &Node) -> NodeType {
+    match node {
+        Root(_) => NodeType::Root,
+        Blockquote(_) => NodeType::Blockquote,
+        FootnoteDefinition(_) => NodeType::FootnoteDefinition,
+        MdxJsxFlowElement(_) => NodeType::MdxJsxFlowElement,
+        List(_) => NodeType::List,
+        MdxjsEsm(_) => NodeType::MdxjsEsm,
+        Toml(_) => NodeType::Toml,
+        Yaml(_) => NodeType::Yaml,
+        Break(_) => NodeType::Break,
+        InlineCode(_) => NodeType::InlineCode,
+        InlineMath(_) => NodeType::InlineMath,
+        Delete(_) => NodeType::Delete,
+        Emphasis(_) => NodeType::Emphasis,
+        MdxTextExpression(_) => NodeType::MdxTextExpression,
+        FootnoteReference(_) => NodeType::FootnoteReference,
+        Html(_) => NodeType::Html,
+        Image(_) => NodeType::Image,
+        ImageReference(_) => NodeType::ImageReference,
+        MdxJsxTextElement(_) => NodeType::MdxJsxTextElement,
+        Link(_) => NodeType::Link,
+        LinkReference(_) => NodeType::LinkReference,
+        Strong(_) => NodeType::Strong,
+        Text(_) => NodeType::Text,
+        Code(_) => NodeType::Code,
+        Math(_) => NodeType::Math,
+        MdxFlowExpression(_) => NodeType::MdxFlowExpression,
+        Heading(_) => NodeType::Heading,
+        Table(_) => NodeType::Table,
+        ThematicBreak(_) => NodeType::ThematicBreak,
+        TableRow(_) => NodeType::TableRow,
+        TableCell(_) => NodeType::TableCell,
+        ListItem(_) => NodeType::ListItem,
+        Definition(_) => NodeType::Definition,
+        Paragraph(_) => NodeType::Paragraph,
+    }
+}
