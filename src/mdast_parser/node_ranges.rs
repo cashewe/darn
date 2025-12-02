@@ -61,8 +61,31 @@ impl NodeRanges {
     }
 
     /// merge adjacent or overlapping ranges of a shared type
-    /// this will stop us over calculating later
-    /// does it belong here or somewhere else?
-    /// when should it be called to minimise the API width?
-    pub fn deduplicate_ranges() {}
+    /// does this belong here or in the consuming service?
+    pub fn deduplicate_ranges(&mut self) {
+        for node_ranges in self.ranges.values_mut() {
+            merge_overlapping(node_ranges);
+        }
+    }
+
+    /// mutate the ranges vector in place if needs be
+    fn merge_overlapping(node_ranges: &mut Vec<NodeStartEnd>) {
+        node_ranges.sort_by_key(|r| r.start);
+
+        let mut merged = Vec::with_capacity(node_ranges.len());
+
+        let current = node_ranges[0];
+        for next in &node_ranges[1..] {
+            if next.start <= current.end {
+                // do we want to <= current.end or current.end + 1?
+                current.end = current.end.max(next.end);
+            } else {
+                merged.push(current);
+                current = next;
+            }
+        }
+
+        merged.push(current);
+        *node_ranges = merged;
+    }
 }
