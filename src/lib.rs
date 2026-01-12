@@ -10,4 +10,11 @@ mod darn_it {
     fn sum_as_string(a: usize, b: usize) -> PyResult<String> {
         Ok((a + b).to_string())
     }
+
+    /// shall we map the string to mdast coverage objects here?
+    /// will people actually want that?
+    /// fuck em theyre getting it...
+    fn bs_func() {
+        ...
+    }
 }
