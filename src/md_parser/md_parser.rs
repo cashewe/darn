@@ -8,11 +8,11 @@ pub struct MdParser;
 impl MdParser {
     /// turn a markdown structured string into a collection of node start / end indices
     pub fn parse(markdown_string: &str) -> NodeRanges{
-        let root = to_mdast(markdown_string, &ParseOptions::default())?;
+        let root = to_mdast(markdown_string, &ParseOptions::default()).unwrap();
         let mut ranges = NodeRanges::new();
 
         for child in &root.children {
-            Self::visit_node(child, ranges);
+            Self::visit_node(child, &mut ranges);
         }
 
         ranges.deduplicate_ranges();

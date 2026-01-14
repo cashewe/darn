@@ -4,9 +4,10 @@ use enum_map::EnumMap;
 use crate::md_parser::NodeType;
 
 /// the start and end of the range as identified in the algo
+#[derive(Clone, Copy)]
 pub struct NodeStartEnd {
-    start: u32,  // are these big enough? how do we handle the ambiguity?????
-    end: u32,
+    pub start: u32,  // are these big enough? how do we handle the ambiguity?????
+    pub end: u32,
 }
 
 /// HashMap Enum hybrid thing i found for representing
@@ -27,7 +28,7 @@ impl NodeRanges {
     /// do we assume start is before end or should i enforce that here?
     pub fn add(&mut self, kind: NodeType, start: u32, end: u32) {
         self.ranges[kind].push(
-            NodeStartEnd(start, end)
+            NodeStartEnd { start, end }
         )
     }
 
@@ -53,7 +54,7 @@ impl NodeRanges {
             .iter()
             .take_while(move |r| {
                 if let Some(end_threshold) = end_at {
-                    r.end <= threshold  // break out once we're too begin
+                    r.end <= end_threshold  // break out once we're too begin
                 } else {
                     true
                 }
@@ -64,24 +65,28 @@ impl NodeRanges {
     /// does this belong here or in the consuming service?
     pub fn deduplicate_ranges(&mut self) {
         for node_ranges in self.ranges.values_mut() {
-            merge_overlapping(node_ranges);
+            Self::merge_overlapping(node_ranges);
         }
     }
 
     /// mutate the ranges vector in place if needs be
     fn merge_overlapping(node_ranges: &mut Vec<NodeStartEnd>) {
+        if node_ranges.is_empty() {
+            return;
+        }
+        
         node_ranges.sort_by_key(|r| r.start);
 
         let mut merged = Vec::with_capacity(node_ranges.len());
 
-        let current = node_ranges[0];
+        let mut current = node_ranges[0].clone();
         for next in &node_ranges[1..] {
             if next.start <= current.end {
                 // do we want to <= current.end or current.end + 1?
                 current.end = current.end.max(next.end);
             } else {
-                merged.push(current);
-                current = next;
+                merged.push(current.clone());
+                current = next.clone();
             }
         }
 
