@@ -1,12 +1,4 @@
-// to parse the ast we get from the package
-// will need to:
-//   - pull the current node type
-//   - ull the start / end index of the entire node (i.e. incl. all children) and push as a 'tuple' to the hashmap
-//     the example suggests these indexes are provided by the crate i.e.:
-//   ```Root { children: [Heading { children: [Text { value: "Hi ", position: Some(1:3-1:6 (2-5)) }, Emphasis { children: [Text { value: "Earth", position: Some(1:7-1:12 (6-11)) }], position: Some(1:6-1:13 (5-12)) }, Text { value: "!", position: Some(1:13-1:14 (12-13)) }], position: Some(1:1-1:14 (0-13)), depth: 1 }], position: Some(1:1-1:14 (0-13)) }```
-// 
-// this can then be used in any rules to identify the relevant text to operate on
-use crate::mdast_parser::{NodeRanges, NodeType};
+use crate::md_parser::{NodeRanges, NodeType};
 use markdown::mdast::Node;
 use markdown::mdast::Node::*;
 use markdown::{to_mdast, ParseOptions};
@@ -33,17 +25,28 @@ impl MdParser {
             ranges.add(kind, start, end)
         }
 
-        // recurisvely re-enter this function for all children of the current node...
-        // how do i hit the children?
-        // some but not all node types have a 'children' trait
-        // so i will probably have to match for each of those types manually and then enter again for them...
-        // cant be assed this evening - this will be a tomorrow task i think.
+        match node {
+            // not all node types can have children, hence this limited list
+            // wish the markdown crate included traits -_-
+            Root(n) | Blockquote(n) | FootnoteDefinition(n)
+            | MdxJsxFlowElement(n) | List(n) | Delete(n) 
+            | Emphasis(n) | MdxJsxTextElement(n) | Link(n)
+            | LinkReference(n) | Strong(n) | Heading(n) | Table(n)
+            | TableRow(n) | TableCell(n) | ListItem(n)
+            | Paragraph(n) => {
+                for child in &n.children {
+                    Self::visit_node(child, ranges);
+                }
+            }
+            _ => {} // everything else - should we raise this?
+        }
     }
 
     /// get type, start and end position from a given node object
     fn extract_position(node: &Node) -> Option<(NodeType, u32, u32)> {
         // I might be missing something here buuuut
         // since markdown doesnt include like a 'Positioned' trait
+        // and i need to map beat by beat
         // i think i litterally have no choice but to extract position manually like this?
         let (kind, position) = match node {
             Root(n) => (NodeType::Root, &n.position),

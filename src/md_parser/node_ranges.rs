@@ -1,7 +1,7 @@
 // in this file we will:
 // define a means of merging adjacent ranges
 use enum_map::EnumMap;
-use crate::mdast_parser::NodeType;
+use crate::md_parser::NodeType;
 
 /// the start and end of the range as identified in the algo
 pub struct NodeStartEnd {

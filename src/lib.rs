@@ -15,6 +15,6 @@ mod darn_it {
     /// will people actually want that?
     /// fuck em theyre getting it...
     fn bs_func() {
-        ...
+        println!("hello world")
     }
 }
