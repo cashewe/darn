@@ -11,10 +11,12 @@ mod darn_it {
         Ok((a + b).to_string())
     }
 
-    /// shall we map the string to mdast coverage objects here?
-    /// will people actually want that?
-    /// fuck em theyre getting it...
-    fn bs_func() {
+    /// function to create and display the EnumMap for a given md file - used for debugging
+    #[pyfunction]
+    fn bs_func(a: &str) {
+        // read the file from &a in as string
+        // run the relevant code to parse it
+        // println it with wonderous skill
         println!("hello world")
     }
 }

@@ -1,5 +1,4 @@
-// in this file we will:
-// define a means of merging adjacent ranges
+use std::fmt;
 use enum_map::EnumMap;
 use crate::md_parser::NodeType;
 
@@ -92,5 +91,15 @@ impl NodeRanges {
 
         merged.push(current);
         *node_ranges = merged;
+    }
+}
+
+/// implement display for easier debugging
+impl fmt::Display for NodeRanges {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for (node_type, ranges) in &self.ranges {
+            writeln!(f, "{:?}: {} ranges", node_type, ranges.len())?;
+        }
+        Ok(())
     }
 }
