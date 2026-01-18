@@ -1,22 +1,21 @@
 use pyo3::prelude::*;
+mod md_parser;
 
-/// A Python module implemented in Rust.
+use md_parser::MdParser;
+
 #[pymodule]
-mod darn_it {
-    use pyo3::prelude::*;
+fn darn_it(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(get_md_node_ranges, m)?)?;
+    Ok(())
+}
 
-    /// Formats the sum of two numbers as string.
-    #[pyfunction]
-    fn sum_as_string(a: usize, b: usize) -> PyResult<String> {
-        Ok((a + b).to_string())
-    }
-
-    /// function to create and display the EnumMap for a given md file - used for debugging
-    #[pyfunction]
-    fn bs_func(a: &str) {
-        // read the file from &a in as string
-        // run the relevant code to parse it
-        // println it with wonderous skill
-        println!("hello world")
-    }
+/// function to create and display the EnumMap for a given md file - used for debugging
+/// this method is disgustingly fast
+#[pyfunction]
+fn get_md_node_ranges(file_path: &str) -> PyResult<()> {
+    let markdown_string = std::fs::read_to_string(file_path)
+        .map_err(|e| pyo3::exceptions::PyIOError::new_err(format!("Failed to read file: {}", e)))?;
+    let node_ranges = MdParser::parse(&markdown_string);
+    println!("{}", node_ranges);
+    Ok(())
 }

@@ -9,6 +9,13 @@ pub struct NodeStartEnd {
     pub end: u32,
 }
 
+/// allow users to easily view the range
+impl fmt::Display for NodeStartEnd {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "[{}, {}]", self.start, self.end)
+    }
+}
+
 /// HashMap Enum hybrid thing i found for representing
 /// every range for a given NodeType
 pub struct NodeRanges {
@@ -98,7 +105,11 @@ impl NodeRanges {
 impl fmt::Display for NodeRanges {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for (node_type, ranges) in &self.ranges {
-            writeln!(f, "{:?}: {} ranges", node_type, ranges.len())?;
+            writeln!(f, "{:?}", node_type)?;
+
+            for range in ranges {
+                writeln!(f, "- {}", range)?;
+            }
         }
         Ok(())
     }

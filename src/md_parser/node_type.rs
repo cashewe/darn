@@ -1,9 +1,7 @@
 use enum_map::Enum;
-use markdown::mdast::Node;
-use markdown::mdast::Node::*;
-
 
 /// All MDAST Nodes minus the extra slop i.e. 'text', 'volume', etc...
+/// as usually Node types include a variety of methods and data we dont need
 #[derive(Debug, Copy, Clone, Enum, PartialEq, Eq, Hash)]
 pub enum NodeType {
     Root,

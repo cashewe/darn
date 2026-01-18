@@ -11,8 +11,11 @@ impl MdParser {
         let root = to_mdast(markdown_string, &ParseOptions::default()).unwrap();
         let mut ranges = NodeRanges::new();
 
-        for child in &root.children {
-            Self::visit_node(child, &mut ranges);
+        // not all Nodes have children - prove to the compiler this one does as its a root
+        if let Node::Root(root_node) = root {
+            for child in &root_node.children {
+                Self::visit_node(child, &mut ranges);
+            }
         }
 
         ranges.deduplicate_ranges();
@@ -25,20 +28,95 @@ impl MdParser {
             ranges.add(kind, start, end)
         }
 
+        // not all node types have children, so we filter here
+        // would be good to find a cleaner way to do this
         match node {
-            // not all node types can have children, hence this limited list
-            // wish the markdown crate included traits -_-
-            Root(n) | Blockquote(n) | FootnoteDefinition(n)
-            | MdxJsxFlowElement(n) | List(n) | Delete(n) 
-            | Emphasis(n) | MdxJsxTextElement(n) | Link(n)
-            | LinkReference(n) | Strong(n) | Heading(n) | Table(n)
-            | TableRow(n) | TableCell(n) | ListItem(n)
-            | Paragraph(n) => {
+            Node::Root(n) => {
                 for child in &n.children {
                     Self::visit_node(child, ranges);
                 }
             }
-            _ => {} // everything else - should we raise this?
+            Node::Blockquote(n) => {
+                for child in &n.children {
+                    Self::visit_node(child, ranges);
+                }
+            }
+            Node::FootnoteDefinition(n) => {
+                for child in &n.children {
+                    Self::visit_node(child, ranges);
+                }
+            }
+            Node::MdxJsxFlowElement(n) => {
+                for child in &n.children {
+                    Self::visit_node(child, ranges);
+                }
+            }
+            Node::List(n) => {
+                for child in &n.children {
+                    Self::visit_node(child, ranges);
+                }
+            }
+            Node::Delete(n) => {
+                for child in &n.children {
+                    Self::visit_node(child, ranges);
+                }
+            }
+            Node::Emphasis(n) => {
+                for child in &n.children {
+                    Self::visit_node(child, ranges);
+                }
+            }
+            Node::MdxJsxTextElement(n) => {
+                for child in &n.children {
+                    Self::visit_node(child, ranges);
+                }
+            }
+            Node::Link(n) => {
+                for child in &n.children {
+                    Self::visit_node(child, ranges);
+                }
+            }
+            Node::LinkReference(n) => {
+                for child in &n.children {
+                    Self::visit_node(child, ranges);
+                }
+            }
+            Node::Strong(n) => {
+                for child in &n.children {
+                    Self::visit_node(child, ranges);
+                }
+            }
+            Node::Heading(n) => {
+                for child in &n.children {
+                    Self::visit_node(child, ranges);
+                }
+            }
+            Node::Table(n) => {
+                for child in &n.children {
+                    Self::visit_node(child, ranges);
+                }
+            }
+            Node::TableRow(n) => {
+                for child in &n.children {
+                    Self::visit_node(child, ranges);
+                }
+            }
+            Node::TableCell(n) => {
+                for child in &n.children {
+                    Self::visit_node(child, ranges);
+                }
+            }
+            Node::ListItem(n) => {
+                for child in &n.children {
+                    Self::visit_node(child, ranges);
+                }
+            }
+            Node::Paragraph(n) => {
+                for child in &n.children {
+                    Self::visit_node(child, ranges);
+                }
+            }
+            _ => {} // Leaf nodes without children
         }
     }
 
