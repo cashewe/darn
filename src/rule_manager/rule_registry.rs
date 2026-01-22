@@ -1,6 +1,6 @@
 // rule_registry:
-//  - register rules to registry
-//  - remove rules from registry
-//  - get length of rules list
-//  - display rules in readable format
-//  - runs all rules simultaneously, since all rule templates use the same abstraction, doesn't need to know anything about them other than to pump the relevant values in
+//  - define rules in registry, of which there will likely be mannnny
+//  - remove rules from registry - will need some identifiers for rules i guess
+//  - get rules for a given node type
+//  - run rules of a given node type async
+//  - publically run for all nodes in a tree
