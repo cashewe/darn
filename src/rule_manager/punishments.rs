@@ -17,6 +17,11 @@ fn linear_punishment(length: usize) -> Vec<i32> {
     (0..length).map(|i| i + 1).collect()
 }
 
+/// punishment gets better the further in you go
+fn reverse_linear_punishment(length: usize) -> Vec<i32> {
+    (0..length).rev().map(|i| i + 1).collect()
+}
+
 /// punishment gets better the further you go
 fn inverse_punishment(length: usize) -> Vec<i32> {
     (0..length).map(|i| length - i).collect()

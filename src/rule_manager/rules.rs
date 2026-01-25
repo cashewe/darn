@@ -1,6 +1,6 @@
 use md_parser::NodeType;
 use crate::rule_manager::rule_templates::{
-    fifty_punishment, inverse_triangular_punishment, zero_punishment, PunishmentFn,
+    fifty_punishment, inverse_triangular_punishment, zero_punishment, reverse_linear_punishment, PunishmentFn,
 };
 
 /// a rule defines the cost function on a given node
@@ -30,6 +30,12 @@ pub static RULES: &[Rule] = &[
         name: "Dont cut titles",
         on_punishment: fifty_punishment,
         off_punishment: zero_punishment,
+        node_type: NodeType::Title,
+    },
+    Rule {
+        name: "Maintain some context after titles",
+        on_punishment: fifty_punishment,
+        off_punishment: reverse_linear_punishment,
         node_type: NodeType::Title,
     },
     Rule {
