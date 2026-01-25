@@ -1,3 +1,5 @@
+/// clear type enforcement for punishment functions
+/// let there be no ambiguity in this file oh please no
 type PunishmentFn = fn(usize, &mut [i32]);
 
 /// no punishment is incurred
