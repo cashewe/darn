@@ -11,42 +11,38 @@ struct Rule {
     node_type: NodeType,
 }
 
-// rules assembled
-// we actually want to define these in the registry i think
-// then give it a 'get_rules(node_type: NodeType) -> Vec<Rule>' function
-
-let dont_cut_paragraphs = Rule {
-    name: "Dont cut paragraphs",
-    on_punishment: fifty_punishment,
-    off_punishment: zero_punishment,
-    node_type: NodeType::Paragraph,
-};
-
-let prefer_cut_paragraphs_center = Rule {
-    name: "Prefer cutting paragraphs in the center if neccessary.",
-    on_punishment: inverse_triangular_punishment,
-    off_punishment: zero_punishment,
-    node_type: NodeType::Paragraph,
-};
-
-let dont_cut_title = Rule {
-    name: "Dont cut titles",
-    on_punishment: fifty_punishment,
-    off_punishment: zero_punishment,
-    node_type: NodeType::Title,
-};
-
-let dont_cut_quote = Rule {
-    name: "Dont cut blockquotes",
-    on_punishment: fifty_punishment,
-    off_punishment: zero_punishment,
-    node_type: NodeType::Blockquote,
-};
-
-let dont_cut_code = Rule {
-    name: "Dont cut code blocks",
-    on_punishment: fifty_punishment,
-    off_punishment: zero_punishment,
-    node_type: NodeType::Code,
-};
+/// rules assembled
+/// This will need extending, potentially need to find a more sustainable way to define them...
+pub static RULES: &[Rule] = &[
+    Rule {
+        name: "Dont cut paragraphs",
+        on_punishment: fifty_punishment,
+        off_punishment: zero_punishment,
+        node_type: NodeType::Paragraph,
+    },
+    Rule {
+        name: "Prefer cutting paragraphs in the center if neccessary.",
+        on_punishment: inverse_triangular_punishment,
+        off_punishment: zero_punishment,
+        node_type: NodeType::Paragraph,
+    },
+    Rule {
+        name: "Dont cut titles",
+        on_punishment: fifty_punishment,
+        off_punishment: zero_punishment,
+        node_type: NodeType::Title,
+    },
+    Rule {
+        name: "Dont cut blockquotes",
+        on_punishment: fifty_punishment,
+        off_punishment: zero_punishment,
+        node_type: NodeType::Blockquote,
+    },
+    Rule {
+        name: "Dont cut code blocks",
+        on_punishment: fifty_punishment,
+        off_punishment: zero_punishment,
+        node_type: NodeType::Code,
+    }
+];
 
