@@ -1,13 +1,13 @@
 use md_parser::NodeType;
 use crate::rule_manager::rule_templates::{
-    fifty_punishment, inverse_triangular_punishment, zero_punishment,
+    fifty_punishment, inverse_triangular_punishment, zero_punishment, PunishmentFn,
 };
 
 /// a rule defines the cost function on a given node
 struct Rule {
     name: &'static str,
-    on_punishment: fn(i32) -> Vec<i32>,
-    off_punishment: fn(i32) -> Vec<i32>,
+    on_punishment: PunishmentFn,
+    off_punishment: PunishmentFn,
     node_type: NodeType,
 }
 
