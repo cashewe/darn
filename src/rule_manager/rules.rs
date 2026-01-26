@@ -1,14 +1,14 @@
-use md_parser::NodeType;
-use crate::rule_manager::rule_templates::{
+use crate::md_parser::NodeType;
+use crate::rule_manager::punishments::{
     fifty_punishment, inverse_triangular_punishment, zero_punishment, reverse_linear_punishment, PunishmentFn,
 };
 
 /// a rule defines the cost function on a given node
-struct Rule {
-    name: &'static str,
-    on_punishment: PunishmentFn,
-    off_punishment: PunishmentFn,
-    node_type: NodeType,
+pub struct Rule {
+    pub name: &'static str,
+    pub on_punishment: PunishmentFn,
+    pub off_punishment: PunishmentFn,
+    pub node_type: NodeType,
 }
 
 /// rules assembled
@@ -30,13 +30,13 @@ pub static RULES: &[Rule] = &[
         name: "Dont cut titles",
         on_punishment: fifty_punishment,
         off_punishment: zero_punishment,
-        node_type: NodeType::Title,
+        node_type: NodeType::Heading,
     },
     Rule {
         name: "Maintain some context after titles",
         on_punishment: fifty_punishment,
         off_punishment: reverse_linear_punishment,
-        node_type: NodeType::Title,
+        node_type: NodeType::Heading,
     },
     Rule {
         name: "Dont cut blockquotes",

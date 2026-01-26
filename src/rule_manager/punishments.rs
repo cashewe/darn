@@ -1,56 +1,74 @@
 /// clear type enforcement for punishment functions
 /// let there be no ambiguity in this file oh please no
-type PunishmentFn = fn(usize, &mut [i32]);
+pub type PunishmentFn = fn(usize, &mut [usize]);
 
 /// no punishment is incurred
-fn zero_punishment(length: usize) -> Vec<i32> {
-    (0..length).collect()
+pub fn zero_punishment(length: usize, out: &mut [usize]) {
+    for i in 0..length {
+        out[i] = 0;
+    }
 }
 
 /// 50 punishment is incurred
-fn fifty_punishment(length: usize) -> Vec<i32> {
-    vec![50; length]
+pub fn fifty_punishment(length: usize, out: &mut [usize]) {
+    for i in 0..length {
+        out[i] = 50;
+    }
 }
 
 /// punishment gets worse the further in you go
-fn linear_punishment(length: usize) -> Vec<i32> {
-    (0..length).map(|i| i + 1).collect()
+pub fn linear_punishment(length: usize, out: &mut [usize]) {
+    for i in 0..length {
+        out[i] = i + 1;
+    }
 }
 
 /// punishment gets better the further in you go
-fn reverse_linear_punishment(length: usize) -> Vec<i32> {
-    (0..length).rev().map(|i| i + 1).collect()
-}
+pub fn reverse_linear_punishment(length: usize, out: &mut [usize]) {
+    let start = 50usize;
 
-/// punishment gets better the further you go
-fn inverse_punishment(length: usize) -> Vec<i32> {
-    (0..length).map(|i| length - i).collect()
-}
-
-/// each additional unit of length incurs double the punishment of the previous unit
-fn exponential_punishment(length: usize) -> Vec<i32> {
-    (0..length).map(|i| 2_i32.pow(i as u32)).collect()
+    for i in 0..length {
+        out[i] = start.saturating_sub(i);
+    }
 }
 
 /// inverse triangular punishment is cheapest in the center
-fn inverse_triangular_punishment(length: usize) -> Vec<i32> {
+pub fn inverse_triangular_punishment(length: usize, out: &mut [usize]) {
     if length == 0 {
-        return Vec::new();
+        return;
     }
     if length == 1 {
-        return vec![0];
+        out[0] = 0;
+        return;
     }
     
-    let mut result = Vec::with_capacity(length as usize);
-    let max_distance = (length - 1) as f64 / 2.0;
-    
+    let mid = (length - 1) as f64 / 2.0;
+    let max_distance = mid;
+
     for i in 0..length {
-        let mid = (length - 1) as f64 / 2.0;
         let distance_from_mid = (i as f64 - mid).abs();
         let normalized = distance_from_mid / max_distance;
-        let value = (normalized * 50.0).round() as i32;
-        result.push(value);
+        let value = (normalized * 50.0).round() as usize;
+        out[i] = value;
     }
-    
-    result
+}
+
+/// triangular punishment is worst in the center
+pub fn triangular_punishment(length: usize, out: &mut [usize]) {
+    if length == 0 {
+        return;
+    }
+    if length == 1 {
+        out[0] = 50;
+        return;
+    }
+
+    let mid = (length - 1) as f64 / 2.0;
+    let max_distance = mid;
+    for i in 0..length {
+        let distance_from_mid = (i as f64 - mid).abs();
+        let normalized = distance_from_mid / max_distance;
+        let value = ((1.0 - normalized) * 50.0).round() as usize;
+        out[i] = value;
+    }
 }

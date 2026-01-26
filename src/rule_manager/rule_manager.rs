@@ -1,35 +1,26 @@
-use md_parser::{NodeType, NodeStartEnd, NodeRanges};
+use crate::md_parser::{NodeType, NodeStartEnd, NodeRanges};
 use crate::rule_manager::{RULES, Rule};
 
-pub struct RuleManager {
-    rules: Vec<&'static Rule>, // do we need to store this here or can we just import it raw?
-}
+pub struct RuleManager;
 
 impl RuleManager {
-    fn new() -> Self {
-        Self {
-            rules: RULES.iter().collect(),
-        }
-    }
-
     /// linear rule executor
     pub fn build_punishment_vector(
-        &self,
         node_ranges: &NodeRanges,
         total_len: usize,
-    ) -> Vec<i32> {
+    ) -> Vec<usize> {
 
-        let mut result = vec![0i32; total_len];
+        let mut result = vec![0usize; total_len];
 
         for (node_type, ranges) in node_ranges.ranges.iter() { // parallelise this later?
 
-            let rules = self._get_rules_for_node_type(*node_type);
+            let rules = Self::_get_rules_for_node_type(node_type);
             if rules.is_empty() {
                 continue;
             }
 
             for rule in rules {
-                self._apply_rule(
+                Self::_apply_rule(
                     rule,
                     ranges,
                     total_len,
@@ -43,11 +34,10 @@ impl RuleManager {
 
     /// apply the rule to the given ranges for the nodetype.
     fn _apply_rule(
-        &self,
         rule: &Rule,
         ranges: &Vec<NodeStartEnd>,
         total_len: usize,
-        output: &mut [i32],
+        output: &mut [usize],
     ) {
 
         let mut cursor = 0usize;
@@ -94,13 +84,13 @@ impl RuleManager {
     /// apply the punishment to the range described
     #[inline]
     fn _apply_segment(
-        f: fn(usize, &mut [i32]),
+        f: fn(usize, &mut [usize]),
         start: usize,
         end: usize,
-        output: &mut [i32],
+        output: &mut [usize],
     ) {
         let len = end - start;
-        let mut tmp = vec![0i32; len];
+        let mut tmp = vec![0usize; len];
 
         f(len, &mut tmp);
 
@@ -110,8 +100,8 @@ impl RuleManager {
     }
 
     /// filter registered rules to those of a give type
-    fn _get_rules_for_node_type(&self, node_type: NodeType) -> Vec<&'static Rule> {
-        self.rules.iter()
+    fn _get_rules_for_node_type(node_type: NodeType) -> Vec<&'static Rule> {
+        RULES.iter()
             .filter(|rule| rule.node_type == node_type)
             .collect()
     }
