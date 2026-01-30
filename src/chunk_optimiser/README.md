@@ -1,25 +1,45 @@
 # ChunkOptimiser
 
-this component will run optimisation algs over the punishment vector in order to optimise where we cut.
+Here, we just do a bounded shortest path problem. the jist is:
 
-things we need to account for:
-- chunk size limits (strict / flexible?)
-- run time
-- minimum chunk size also needs to be encouraged right? or itll just shoot for like as many tiny chunks as possible...
+input: 
+- punishment (vector)
+- n (maximum chunk size)
 
-treating this as a shortest path problem, dynamic programming is the correct way to solve it. unfortunately thats alot less fun than building silly algorithms, so i may just goof off and do those too, call it science and ask for a pay rise for the pleasure...
+instantiate:
+- cost (length = punishment vector, initially all values oo)
+- cheapest node (length = punishment vector, initially all values are None)
+- chunk indicies (unknown length)
 
-## architecture
+- start at the end of the punsihment vector and work backwards to the start
+- for each index i:
+    - if i + n is greater than the length of the punishment vector
+        - set cost[i] = punishment[i]
+    - else, find j s.t. i+1 <= j <= i+n, cost[j] is minimum in range
+        - cost[i] = cost[j] + punishment [i]
+        - cheapest node[i] = j
+- starting at index 0, look for 'i' - cheapest element in cost vector within range n
+    - chunk indices += i
+    - move to index = cheapest node[i]
+- repeat prior step until optimal chunk indices is produced.
 
-we need something that stores and selects which algorithm to run?
-we need some data object for storing chunking indexes? -> or should it actually perform the chunking tbh...
+## example
 
-## potential algorithms
+inputs:
 
-- forwardsgreedy: *take the cheapest option within the given chunk size, iteratively*
-- backwardsgreedy: *take the cheapest option within the given chunk size, starting from the end, iteratively
-- genetic: *breed based on cheapest option out of two parent options each time?*
-- genetic: *breed with alternating parets?*
-- dynamic programming: *this is effectively a shortest path problem right?*
+current costs = [5, 1, 3, 2, 4, 6], n = 2 (can jump 1 or 2 positions)
 
-going in, id expect dynamic programming to yield the best solution - so we should probs aim to get it in first.
+initialise:
+
+costs = [∞, ∞, ∞, ∞, 4, 6], cheapest nodes = [NaN, NaN, NaN, NaN, NaN, NaN]
+
+steps:
+
+1.    costs = [∞, ∞, ∞, 6, 4, 6], cheapest nodes = [NaN, NaN, NaN, 5, NaN, NaN]
+2.    costs = [∞, ∞, 7, 6, 4, 6], cheapest nodes = [NaN, NaN, 5, 5, NaN, NaN]
+3.    costs = [∞, 7, 7, 6, 4, 6], cheapest nodes = [NaN, 4, 5, 5, NaN, NaN]
+4.    costs = [12, 7, 7, 6, 4, 6], cheapest nodes = [3, 4, 5, 5, NaN, NaN]
+5.    cheapest option up to '2' from point 0 is index 2, so cuts are [0, 2]
+6.    index 2s next cheapest is index 4, so cuts are [0, 2, 4]
+7.    index 4s next cheapest is index 5, so cuts are [0, 2, 4, 5]
+8.    index 5 can hop out of the list, so the final solution is proven to be [0, 2, 4, 5]
