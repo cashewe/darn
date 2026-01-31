@@ -18,6 +18,9 @@ impl MdParser {
             }
         }
 
+        Self::add_word_ranges(markdown_string, &mut ranges);
+        Self::add_sentence_ranges(markdown_string, &mut ranges);
+
         ranges.deduplicate_ranges();
         ranges
     }
@@ -171,5 +174,48 @@ impl MdParser {
                 pos.end.offset as u32,
             )
         })
+    }
+
+    /// add words to the enummap, even though its not in the mdast
+    fn add_word_ranges(markdown_string: &str, ranges: &mut NodeRanges) {
+        let bytes = markdown_string.as_bytes();
+        let mut start = 0;
+        
+        while start < bytes.len() {
+            // Skip whitespace
+            while start < bytes.len() && bytes[start].is_ascii_whitespace() {
+                start += 1;
+            }
+            
+            if start >= bytes.len() {
+                break;
+            }
+            
+            // Find end of word
+            let mut end = start;
+            while end < bytes.len() && !bytes[end].is_ascii_whitespace() {
+                end += 1;
+            }
+            
+            ranges.add(NodeType::Word, start as u32, end as u32);
+            start = end;
+        }
+    }
+
+    /// add the sentences ish - ive kind of got to guess about this
+    fn add_sentence_ranges(markdown_string: &str, ranges: &mut NodeRanges) {
+        let sentence_endings = ['.', '!', '?'];
+        let mut start = 0;
+        for (idx, ch) in markdown_string.char_indices() {
+            if sentence_endings.contains(&ch) {
+                let end = idx + ch.len_utf8();
+                ranges.add(NodeType::Sentence, start as u32, end as u32);
+                start = end;
+            }
+        }
+        // Handle any remaining text as the last sentence
+        if start < markdown_string.len() {
+            ranges.add(NodeType::Sentence, start as u32, markdown_string.len() as u32);
+        }
     }
 }

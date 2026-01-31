@@ -49,6 +49,18 @@ pub static RULES: &[Rule] = &[
         on_punishment: fifty_punishment,
         off_punishment: zero_punishment,
         node_type: NodeType::Code,
+    },
+    Rule {
+        name: "Dont cut words",
+        on_punishment: fifty_punishment,
+        off_punishment: zero_punishment,
+        node_type: NodeType::Word,
+    },
+    Rule {
+        name: "Dont cut sentences",
+        on_punishment: fifty_punishment,
+        off_punishment: zero_punishment,
+        node_type: NodeType::Sentence,
     }
 ];
 

@@ -38,4 +38,6 @@ pub enum NodeType {
     ListItem,
     Definition,
     Paragraph,
+    Word, // not from the mdast, but i want it anyways
+    Sentence, // as above, created for pure pleasure
 }
