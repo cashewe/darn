@@ -1,65 +1,148 @@
-# darn-it (welsh, meaning 'piece' or more favourably, 'chunk')
-opinionated text chunker that respects markdown format. Built in rust for speed / safety, but hooked in to python via maturin or otherwise to allow Data Scientists to use it for text processing.
+# darn-it
+(`darn` - *Welsh*, meaning 'piece' or more favourably, 'chunk')
 
-the tool will receive a *markdown string* (i.e. anything that isn't valid markdown will not be guaranteed to work, dont especially care if someone tries anyways though) and output 'chunks' - an exhaustive collection of all the text in the original string but split up according to rules.
+Darn is a rust-backed tool for producing mathematically optimised 'chunks' from markdown-formatted string data. Due to its simple interface and mathematical accuracy, darn is recommended for use by teams looking to move quickly past the problem of chunking at scale and towards more interesting engineering feats - it is likely that specific chunking operations based on context will outpreform it for teams who have the time and desire to manually produce them.
 
-the tool will receive:
-- some input string
-- a chunk size 
-- a definition of size (this can be used to account for token based chunking vs character based chunking etc...)
-- an option to include overlap between chunks of a set size
-- an option to allow chunks to be larger than the given size in the event that certain 'high priority' rules would be violated otherwise (for instance, if i want to strictly never split a table up, I may need to allow a table chunk to be larger than the set size.
+## Setup
 
-and will output:
-- some collection of 'chunks'
-  - start character index
-  - content
-  - length? (i.e. in characters / tokens depending on the strategy selected)
-we *may* prefer this as a generator rather than a list output?
+To use darn, you must first install it, ideally into a python virtual environment:
 
-the act of chunking will be performed in a way that aims to respect parts of text (English language only). It will do this with a hierarchical list of 'rules' it will attempt to chunk by - and we may want to expose these to the user to allow them to reorder or turn certain rules off etc...
+```
+pip install uv
 
-## for examples of rules:
-- if we have two paragraphs, and the first is much smaller than the estimated chunk size, we will still return it as a single chunk if the following paragraph is small enough to also be a chunk of its own. if the following paragraph will be split either way, we'd be ok to carry part of it into the current chunk.
-- do not split a sentence between chunks unless absolutely neccessary
-- keep entire bullet point / numbered / alphabetised lists in one chunk where possible
-- keep sub lists in one chunk if the above isn't possible
-- keep entire tables in one chunk where possible
-- keep entire code snippets where possible
-- keep full quotes where possible (i.e. everything between two quotation marks, or everything between two sets of three quotation marks to cover longer strings)
-- keep proper nouns etc... where possible
-- include context where possible (i.e. the last sentence before a structure such as a quote, list, table, etc... will be included in the chunk with the structure)
+uv venv --python 3.13
+source .venv/bin/activate # or .venv\Scripts\activate on windows
 
-## the tool will need to be designed to the following spec:
-- scale to add new opinionated rules easily, and rearrange them etc... without issue
-- allow for some rules to dynamically edit the underlying text, without loosing the correct start index of the chunk from the original text (for instance, if we physically *cant* keep a whole table together in one chunk, we may get around this by refusing to split rows of the table between chunks, and duplicating the tables column headers into the second chunk that contains it. this should not mean the index becomes inaccurate.)
-- lowest possible memory cost
-- have some means of identifying each type of 'structure' in a string accurately. (we may want to allow users to access this anyways so it becomes like a context-ful string that can also perform chunking like context_string.paragraphs(), context_string.tables(), context_string.chunk(), etc...)
+uv pip install darn_it
+```
 
-## other ideas i have that might be good to explore (i.e. the design ideally wouldn't lock us out of any of these without warning)
-- the rules might be able to be turned on or off, or rearranged in terms of importance in init?
-- there might be categories for strict vs flexible rules, where a strict rule is willing to overshoot the chunksize in order to be obeyed whereas a flexible rule is a preference but it will be broken to maintain chunk size. in either case, the violation should be minimised. behaviour may differ based on these rules (for instance as mentioned above, if tables are set as flexible, the column headers may exist in multiple chunks). users may be able to set the rule category themselves if they want.
-- a definition of the size of a violation might be allowed per rule - for instance a sentence may aim to have as little as possible be cut off between chunks, whilst in the case of a bullet pointed list you may aim to have as even a split as possible? 
+from here, you can import it into your python session for use:
 
-## how do we ensure later rules dont end up accidentally violating old ones? 
-i guess each rule will need to yield one of two lists:
-- acceptable chunk indicies
-- unacceptable chunk indicies
-these indicies may need to be spans i.e. 'you cannot chunk within this span' vs 'you can chunk at this specific index'. we'd then have something come and pick where to put the chunk start / end points based on these values, along with the chunk size?
+```
+from darn_it import Chunker
 
-## steps to build:
-1. create AST of input markdown string (this is valuable anyways, i haven't seen anyone do it exhaustively. theres got to be a reason for that mind you... -> assume non trivial)
-2. create chunk generator that yields chunks based on a list of start / end indexes its provided
-3. create rule system that scales to 'N' rules, allows users to set new rule priority, flexibility etc..., which uses the AST as its framework for applying rules.
-4. create boundry resolver that uses the rules suggested start / end indicies and decides where to actually perform the splitting
+chunker = Chunker()
 
+with open("file.md", "r") as f:
+    text = f.read()
 
-AST for markdown is well defined in the 'mdast' specification:
-https://github.com/syntax-tree/mdast
-which luckily provides us with all the unit tests etc... we'll need.
+chunker.get_chunks(text=text, chunk_size=500)
+```
 
-to complete step one ill need to learn alot more about AST's - but i think thatll be interesting tbh. 
-https://github.com/wooorm/markdown-rs/blob/main/src/to_mdast.rs
-^^ this crate has a markdown AST already included so on paper dont need to build my own. id still rather hand spin it so that i can learn more about the process though. I can use the above as a reference throughout, but the final solution should be handmade i.e. no swiping prebuilt solutions and no 'vibe coding' some crap tier slop.
+and darn it will output a list of `Chunk` objects, which include the text of the chunk, along with the start and end index of the chunk for further inspection.
 
-to start with then, we could probably actully get away with starting with the chunk generator - and immediately get something pip installable. the markdown AST is the real value add here, but we can have a default chunk set up and running very quickly i think.
+## The Maths Behind the Magic
+
+Darns 'mathematically optimal chunks' are computed by recontextualising the problem of text chunking to be a bounded shortest path problem on a vector of punishment costs, and using the classic dynamic programming algorithm to solve this problem.
+
+a brief summary of the steps involved to achieve this are as follows:
+
+1. Produce a representation of the relevant structures in the text
+2. Apply 'rules' with associated 'punishments' for breaking them to each structure
+3. create a vector of length = length of input text, whose values are the total 'punishment' for choosign to cut at each character
+4. run the dynamic programming algorithm over the vector with a maximum chunk size to calculate the optimal cuts
+
+more information on each of these steps follows.
+
+### 1. Produce a representation of the relevant structures in the text
+
+Darn makes use of the [rust markdown](https://github.com/wooorm/markdown-rs) crate to produce an [AST](https://en.wikipedia.org/wiki/Abstract_syntax_tree) of the markdown text. This AST is transformed into an '[EnumMap](https://crates.io/crates/enum-map)' object. the EnumMap has keys equal to the unique values of the Enum its built off, and its values are vectors of start and end positions for the structure type. for example:
+
+```
+# Hi *Earth*!
+```
+produces the following MDAST (accoding to the [mardown docs](https://docs.rs/markdown/latest/markdown/fn.to_mdast.html))
+
+```
+Root { children: [Heading { children: [Text { value: "Hi ", position: Some(1:3-1:6 (2-5)) }, Emphasis { children: [Text { value: "Earth", position: Some(1:7-1:12 (6-11)) }], position: Some(1:6-1:13 (5-12)) }, Text { value: "!", position: Some(1:13-1:14 (12-13)) }], position: Some(1:1-1:14 (0-13)), depth: 1 }], position: Some(1:1-1:14 (0-13)) }
+```
+
+which would create the following EnumMap
+
+```
+Heading [0, 13]
+Text [0, 13]
+Emphasis [5, 12]
+```
+
+Importantly, notice that text covers only a single range, despite the fact that there are multiple 'text' nodes in the MDAST. this is because they overlap directly, so are trimmed out to avoid unneccessary computation in future steps. similarly, exactly adjacent nodes of the same time are merged together. This is done to avoid double punishing the same index for a single violation.
+
+### 2. Apply 'rules' with associated 'punishments' for breaking them to each structure
+
+A `Rule` object contains:
+
+- a Node on which it runs (this maps to a value of our EnumMap)
+- an 'on_punishment'
+- an 'off_punishment'
+- (a plain english name, used solely for debugging)
+
+the on / off punishment allows us to tune rules to punish (or reward) a decision to split inside or outside a node of a certain type, for instance if you wanted to encourage splitting between paragraphs you may have a rule like:
+
+```
+Rule(
+  name="split between paragraphs,
+  on_punishment=50,
+  off_punishment=0,
+  node=Node::Paragraph
+)
+```
+
+You can have multiple rules for the same node type if prefered.
+The reasn for including off punishments are two fold:
+
+1. you may wish to actually reward splitting off a certain node i.e. give a negative punishment for splitting between paragraphs
+2. there may be situations where you want a non-linear punishment between values, for instance you may decide you never want to split on titles, but that youd prefer to include at least some text after the title. to do this, you may provide a decreasing punishment function to the 'off_punishment' value, with a static (high) punishment provided to the 'on_punishment'
+
+### 3. create a vector of length = length of input text, whose values are the total 'punishment' for choosign to cut at each character
+
+next, the rules are applied. each index will be punished according to the defined rules based on if it is on or off nodes of every type with a defined rule.
+
+### 4. run the dynamic programming algorithm over the vector with a maximum chunk size to calculate the optimal cuts
+
+Here, we just do a bounded shortest path problem. the jist is:
+
+input: 
+- punishment (vector)
+- n (maximum chunk size)
+
+instantiate:
+- cost (length = punishment vector, initially all values oo)
+- cheapest node (length = punishment vector, initially all values are None)
+- chunk indicies (unknown length)
+
+- start at the end of the punsihment vector and work backwards to the start
+- for each index i:
+    - if i + n is greater than the length of the punishment vector
+        - set cost[i] = punishment[i]
+    - else, find j s.t. i+1 <= j <= i+n, cost[j] is minimum in range
+        - cost[i] = cost[j] + punishment [i]
+        - cheapest node[i] = j
+- starting at index 0, look for 'i' - cheapest element in cost vector within range n
+    - chunk indices += i
+    - move to index = cheapest node[i]
+- repeat prior step until optimal chunk indices is produced.
+
+E.G.
+
+inputs:
+
+current costs = [5, 1, 3, 2, 4, 6], n = 2 (can jump 1 or 2 positions)
+
+initialise:
+
+costs = [∞, ∞, ∞, ∞, 4, 6], cheapest nodes = [NaN, NaN, NaN, NaN, NaN, NaN]
+
+steps:
+
+1.    costs = [∞, ∞, ∞, 6, 4, 6], cheapest nodes = [NaN, NaN, NaN, 5, NaN, NaN]
+2.    costs = [∞, ∞, 7, 6, 4, 6], cheapest nodes = [NaN, NaN, 5, 5, NaN, NaN]
+3.    costs = [∞, 7, 7, 6, 4, 6], cheapest nodes = [NaN, 4, 5, 5, NaN, NaN]
+4.    costs = [12, 7, 7, 6, 4, 6], cheapest nodes = [3, 4, 5, 5, NaN, NaN]
+5.    cheapest option up to '2' from point 0 is index 2, so cuts are [0, 2]
+6.    index 2s next cheapest is index 4, so cuts are [0, 2, 4]
+7.    index 4s next cheapest is index 5, so cuts are [0, 2, 4, 5]
+8.    index 5 can hop out of the list, so the final solution is proven to be [0, 2, 4, 5]
+
+### 5. split text
+
+Finally, we perform the splitting on the optimised boundaries, and return to the user the perfect chunks.
