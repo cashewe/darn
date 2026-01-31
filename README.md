@@ -31,6 +31,13 @@ chunker.get_chunks(text=text, chunk_size=500)
 
 and darn it will output a list of `Chunk` objects, which include the text of the chunk, along with the start and end index of the chunk for further inspection.
 
+for users who would prefer to use tokens over characters to perform the chunking (i.e. chunks will respect token boundaries, and your chunk_size will reflect max tokens not characters), you can use the `granularity` argument and set it to the string "tokens" i.e.
+
+```
+chunker.get_chunks(text=text, chunk_size=500, granularity="tokens")
+```
+sorry its not an Enum in python, maybe someday :(...
+
 ## The Maths Behind the Magic
 
 Darns 'mathematically optimal chunks' are computed by recontextualising the problem of text chunking to be a bounded shortest path problem on a vector of punishment costs, and using the classic dynamic programming algorithm to solve this problem.
@@ -96,6 +103,9 @@ The reasn for including off punishments are two fold:
 ### 3. create a vector of length = length of input text, whose values are the total 'punishment' for choosign to cut at each character
 
 next, the rules are applied. each index will be punished according to the defined rules based on if it is on or off nodes of every type with a defined rule.
+at this point we may choose to reduce this vector to consist only of the final elements of each character. this mapping can be reversed after calculation. by performing the mappings here, we will ensure the following algorithm respects the token boundaries and that the chunk_size will be measured in tokens instead.
+
+**NOTE** the tokeniser currently only supports `cl100k`.
 
 ### 4. run the dynamic programming algorithm over the vector with a maximum chunk size to calculate the optimal cuts
 
