@@ -2,24 +2,10 @@
 /// let there be no ambiguity in this file oh please no
 pub type PunishmentFn = fn(usize, &mut [usize]);
 
-/// no punishment is incurred
-pub fn zero_punishment(length: usize, out: &mut [usize]) {
+/// constant punishment, barely a function tbh
+pub fn const_punishment<const V: usize>(length: usize, out: &mut [usize]) {
     for i in 0..length {
-        out[i] = 0;
-    }
-}
-
-/// 50 punishment is incurred
-pub fn fifty_punishment(length: usize, out: &mut [usize]) {
-    for i in 0..length {
-        out[i] = 50;
-    }
-}
-
-/// big fat punsihment dont you break this rule
-pub fn big_fat_punishment(length: usize, out: &mut [usize]) {
-    for i in 0..length {
-        out[i] = 100;
+        out[i] = V;
     }
 }
 
@@ -40,7 +26,7 @@ pub fn reverse_linear_punishment(length: usize, out: &mut [usize]) {
 }
 
 /// inverse triangular punishment is cheapest in the center
-pub fn inverse_triangular_punishment(length: usize, out: &mut [usize]) {
+pub fn inverse_triangular_punishment<const V: usize>(length: usize, out: &mut [usize]) {
     if length == 0 {
         return;
     }
@@ -55,18 +41,18 @@ pub fn inverse_triangular_punishment(length: usize, out: &mut [usize]) {
     for i in 0..length {
         let distance_from_mid = (i as f64 - mid).abs();
         let normalized = distance_from_mid / max_distance;
-        let value = (normalized * 50.0).round() as usize;
+        let value = (normalized * V as f64).round() as usize;
         out[i] = value;
     }
 }
 
 /// triangular punishment is worst in the center
-pub fn triangular_punishment(length: usize, out: &mut [usize]) {
+pub fn triangular_punishment<const V: usize>(length: usize, out: &mut [usize]) {
     if length == 0 {
         return;
     }
     if length == 1 {
-        out[0] = 50;
+        out[0] = V;
         return;
     }
 
@@ -75,7 +61,7 @@ pub fn triangular_punishment(length: usize, out: &mut [usize]) {
     for i in 0..length {
         let distance_from_mid = (i as f64 - mid).abs();
         let normalized = distance_from_mid / max_distance;
-        let value = ((1.0 - normalized) * 50.0).round() as usize;
+        let value = ((1.0 - normalized) * V as f64).round() as usize;
         out[i] = value;
     }
 }
