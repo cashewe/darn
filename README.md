@@ -3,6 +3,7 @@
 
 Darn is a rust-backed tool for producing mathematically optimised 'chunks' from markdown-formatted string data. Due to its simple interface and mathematical accuracy, darn is recommended for use by teams looking to move quickly past the problem of chunking at scale and towards more interesting engineering feats - it is likely that specific chunking operations based on context will outpreform it for teams who have the time and desire to manually produce them.
 
+
 ## Setup
 
 To use darn, you must first install it, ideally into a python virtual environment:
@@ -32,6 +33,8 @@ chunker.get_chunks(text=text, chunk_size=500)
 and darn it will output a list of `Chunk` objects, which include the text of the chunk, along with the start and end index of the chunk for further inspection.
 
 for users who would prefer to use tokens over characters to perform the chunking (i.e. chunks will respect token boundaries, and your chunk_size will reflect max tokens not characters), you can use the `granularity` argument and set it to the string "tokens" i.e.
+
+**NOTE** darn assumes ASCII compliance. pre-cleaning to remove non-ASCII compliant characters should be performed by users of the package.
 
 ```
 chunker.get_chunks(text=text, chunk_size=500, granularity="tokens")
@@ -140,13 +143,13 @@ current costs = [5, 1, 3, 2, 4, 6], n = 2 (can jump 1 or 2 positions)
 
 initialise:
 
-costs = [∞, ∞, ∞, ∞, 4, 6], cheapest nodes = [NaN, NaN, NaN, NaN, NaN, NaN]
+costs = [oo, oo, oo, oo, 4, 6], cheapest nodes = [NaN, NaN, NaN, NaN, NaN, NaN]
 
 steps:
 
-1.    costs = [∞, ∞, ∞, 6, 4, 6], cheapest nodes = [NaN, NaN, NaN, 5, NaN, NaN]
-2.    costs = [∞, ∞, 7, 6, 4, 6], cheapest nodes = [NaN, NaN, 5, 5, NaN, NaN]
-3.    costs = [∞, 7, 7, 6, 4, 6], cheapest nodes = [NaN, 4, 5, 5, NaN, NaN]
+1.    costs = [oo, oo, oo, 6, 4, 6], cheapest nodes = [NaN, NaN, NaN, 5, NaN, NaN]
+2.    costs = [oo, oo, 7, 6, 4, 6], cheapest nodes = [NaN, NaN, 5, 5, NaN, NaN]
+3.    costs = [oo, 7, 7, 6, 4, 6], cheapest nodes = [NaN, 4, 5, 5, NaN, NaN]
 4.    costs = [12, 7, 7, 6, 4, 6], cheapest nodes = [3, 4, 5, 5, NaN, NaN]
 5.    cheapest option up to '2' from point 0 is index 2, so cuts are [0, 2]
 6.    index 2s next cheapest is index 4, so cuts are [0, 2, 4]
