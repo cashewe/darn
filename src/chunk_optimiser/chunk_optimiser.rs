@@ -10,18 +10,18 @@ pub enum Granularity {
 pub struct ChunkOptimiser<'a> {
     text: &'a str,  // needed incase we tokenise
     punishments: Vec<usize>,
-    token_end_char_idx: Vec<usize>  // maps characters in tokens to the original indices
+    token_start_char_idx: Vec<usize>  // maps characters in tokens to the original indices
 }
 
 impl<'a> ChunkOptimiser<'a> {
     /// create the token to text mapping
     pub fn new(text: &'a str, punishments: Vec<usize>) -> Self {
-        let token_end_char_idx = Self::build_token_alignment(text);
+        let token_start_char_idx = Self::build_token_alignment(text);
 
         Self {
             text,
             punishments,
-            token_end_char_idx,
+            token_start_char_idx,
         }
     }
 
@@ -45,7 +45,7 @@ impl<'a> ChunkOptimiser<'a> {
                 // map the reduced indices back to their original positions
                 token_path
                     .into_iter()
-                    .map(|tok_idx| self.token_end_char_idx[tok_idx])
+                    .map(|tok_idx| self.token_start_char_idx[tok_idx])
                     .collect()
 
             }
@@ -58,22 +58,22 @@ impl<'a> ChunkOptimiser<'a> {
         let bpe = cl100k_base().unwrap();
         let tokens = bpe.encode_ordinary(text);
 
-        let mut end_indices = Vec::with_capacity(tokens.len());
+        let mut start_indices = Vec::with_capacity(tokens.len());
         let mut cursor = 0usize;
 
         for tok in tokens {
+            start_indices.push(cursor);  // Store START position
             let s = bpe.decode(vec![tok]).unwrap();
             let len = s.chars().count();
             cursor += len;
-            end_indices.push(cursor - 1);
         }
 
-        end_indices
+        start_indices
     }
 
     /// reduce a vector to only the end characters of the tokens in it
     fn build_reduced_vector(&self) -> Vec<usize> {
-        self.token_end_char_idx
+        self.token_start_char_idx
             .iter()
             .map(|&i| self.punishments[i])
             .collect()

@@ -16,6 +16,13 @@ pub fn fifty_punishment(length: usize, out: &mut [usize]) {
     }
 }
 
+/// big fat punsihment dont you break this rule
+pub fn big_fat_punishment(length: usize, out: &mut [usize]) {
+    for i in 0..length {
+        out[i] = 100;
+    }
+}
+
 /// punishment gets worse the further in you go
 pub fn linear_punishment(length: usize, out: &mut [usize]) {
     for i in 0..length {

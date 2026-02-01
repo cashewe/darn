@@ -203,6 +203,7 @@ impl MdParser {
     }
 
     /// add the sentences ish - ive kind of got to guess about this
+    /// maybe sentence ending punctuation is a decent approximation?
     fn add_sentence_ranges(markdown_string: &str, ranges: &mut NodeRanges) {
         let sentence_endings = ['.', '!', '?'];
         let mut start = 0;
@@ -210,7 +211,7 @@ impl MdParser {
             if sentence_endings.contains(&ch) {
                 let end = idx + ch.len_utf8();
                 ranges.add(NodeType::Sentence, start as u32, end as u32);
-                start = end;
+                start = end + 1;
             }
         }
         // Handle any remaining text as the last sentence

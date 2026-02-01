@@ -1,6 +1,6 @@
 use crate::md_parser::NodeType;
 use crate::rule_manager::punishments::{
-    fifty_punishment, inverse_triangular_punishment, zero_punishment, reverse_linear_punishment, PunishmentFn,
+    fifty_punishment, inverse_triangular_punishment, zero_punishment, reverse_linear_punishment, big_fat_punishment, PunishmentFn,
 };
 
 /// a rule defines the cost function on a given node
@@ -52,7 +52,7 @@ pub static RULES: &[Rule] = &[
     },
     Rule {
         name: "Dont cut words",
-        on_punishment: fifty_punishment,
+        on_punishment: big_fat_punishment,
         off_punishment: zero_punishment,
         node_type: NodeType::Word,
     },
