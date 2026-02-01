@@ -18,14 +18,14 @@ impl Chunker {
     }
 
     /// split text using the power of wonderous mathematics
-    #[pyo3(signature = (text, chunk_size, granularity="characters"))]
-    fn get_chunks(&self, text: &str, chunk_size: usize, granularity: &str) -> PyResult<Vec<Chunk>> {
+    #[pyo3(signature = (text, chunk_size, granularity="characters", model="gpt-4o-mini"))]
+    fn get_chunks(&self, text: &str, chunk_size: usize, granularity: &str, model: &str) -> PyResult<Vec<Chunk>> {
 
         let node_ranges = MdParser::parse(text);
         let cost_vector =
             RuleManager::build_punishment_vector(&node_ranges, text.len());
         
-        let optimiser = ChunkOptimiser::new(text, cost_vector);
+        let optimiser = ChunkOptimiser::new(text, cost_vector, model);
         let granularity = match granularity { // prefer not to have pyo3 dep in other modules
             "characters" => Granularity::Characters,
             "tokens" => Granularity::Tokens,

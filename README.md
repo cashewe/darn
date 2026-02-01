@@ -106,9 +106,9 @@ The reasn for including off punishments are two fold:
 ### 3. create a vector of length = length of input text, whose values are the total 'punishment' for choosign to cut at each character
 
 next, the rules are applied. each index will be punished according to the defined rules based on if it is on or off nodes of every type with a defined rule.
-at this point we may choose to reduce this vector to consist only of the final elements of each character. this mapping can be reversed after calculation. by performing the mappings here, we will ensure the following algorithm respects the token boundaries and that the chunk_size will be measured in tokens instead.
+at this point we may choose to reduce this vector to consist only of the first elements of each character. this mapping can be reversed after calculation. by performing the mappings here, we will ensure the following algorithm respects the token boundaries and that the chunk_size will be measured in tokens instead.
 
-**NOTE** the tokeniser currently only supports `cl100k`.
+**NOTE** the tokeniser will be selected based on provided model name.
 
 ### 4. run the dynamic programming algorithm over the vector with a maximum chunk size to calculate the optimal cuts
 

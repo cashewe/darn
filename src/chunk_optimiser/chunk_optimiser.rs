@@ -1,4 +1,4 @@
-use tiktoken_rs::cl100k_base;
+use tiktoken_rs::{CoreBPE, get_bpe_from_model, get_bpe_from_tokenizer, model};
 use crate::chunk_optimiser::cheapest_path_indices;
 
 #[derive(Clone, Copy)]
@@ -15,8 +15,8 @@ pub struct ChunkOptimiser<'a> {
 
 impl<'a> ChunkOptimiser<'a> {
     /// create the token to text mapping
-    pub fn new(text: &'a str, punishments: Vec<usize>) -> Self {
-        let token_start_char_idx = Self::build_token_alignment(text);
+    pub fn new(text: &'a str, punishments: Vec<usize>, model: &str) -> Self {
+        let token_start_char_idx = Self::build_token_alignment(text, model);
 
         Self {
             text,
@@ -54,8 +54,8 @@ impl<'a> ChunkOptimiser<'a> {
 
     /// build a mapping from the last element of a token to its index in
     /// the original string. 
-    fn build_token_alignment(text: &str) -> Vec<usize> {
-        let bpe = cl100k_base().unwrap();
+    fn build_token_alignment(text: &str, model: &str) -> Vec<usize> {
+        let bpe = Self::get_bpe(model);
         let tokens = bpe.encode_ordinary(text);
 
         let mut start_indices = Vec::with_capacity(tokens.len());
@@ -69,6 +69,12 @@ impl<'a> ChunkOptimiser<'a> {
         }
 
         start_indices
+    }
+
+    /// generic tokeniser interface
+    fn get_bpe(model: &str) -> CoreBPE {
+        get_bpe_from_model(model)
+            .expect("invalid model or tokenizer selected")
     }
 
     /// reduce a vector to only the end characters of the tokens in it
