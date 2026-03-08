@@ -18,8 +18,8 @@ impl Chunker {
     }
 
     /// split text using the power of wonderous mathematics
-    #[pyo3(signature = (text, chunk_size, granularity="characters", model="gpt-4o-mini"))]
-    fn get_chunks(&self, text: &str, chunk_size: usize, granularity: &str, model: &str) -> PyResult<Vec<Chunk>> {
+    #[pyo3(signature = (text, chunk_size, granularity="characters", model="gpt-4o-mini", overlap=0))]
+    fn get_chunks(&self, text: &str, chunk_size: usize, granularity: &str, model: &str, overlap: usize) -> PyResult<Vec<Chunk>> {
 
         let node_ranges = MdParser::parse(text);
         let cost_vector =
@@ -43,10 +43,21 @@ impl Chunker {
 
         for (i, &start) in chunk_indices.iter().enumerate() {
 
-            let end = if i + 1 < chunk_indices.len() {
+            let base_end = if i + 1 < chunk_indices.len() {
                 chunk_indices[i + 1]
             } else {
                 text.len()
+            };
+
+            let end = if overlap > 0 && i + 1 < chunk_indices.len() {
+                match granularity {
+                    Granularity::Characters => base_end.saturating_add(overlap).min(text.len()),
+                    Granularity::Tokens => {
+                        optimiser.char_index_after_token_offset(base_end, overlap)
+                    }
+                }
+            } else {
+                base_end
             };
 
             let slice = text

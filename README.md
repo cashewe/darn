@@ -28,6 +28,15 @@ with open("file.md", "r") as f:
     text = f.read()
 
 chunker.get_chunks(text=text, chunk_size=500)
+
+# overlapping chunks
+You can also specify an `overlap` argument to pull an extra number of units
+(characters by default) beyond each chunk boundary. These extra units will be
+repeated at the start of the following chunk, allowing you to maintain a small
+window of context:
+
+```python
+chunker.get_chunks(text=text, chunk_size=500, overlap=50)
 ```
 
 and darn it will output a list of `Chunk` objects, which include the text of the chunk, along with the start and end index of the chunk for further inspection.

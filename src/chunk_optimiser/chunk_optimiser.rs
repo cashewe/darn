@@ -84,4 +84,20 @@ impl<'a> ChunkOptimiser<'a> {
             .map(|&i| self.punishments[i])
             .collect()
     }
+
+    /// given a character index corresponding to the start of a token boundary,
+    /// return the character index that is `offset_tokens` tokens further along.
+    pub fn char_index_after_token_offset(&self, start_char_idx: usize, offset_tokens: usize) -> usize {
+        let token_idx = match self.token_start_char_idx.binary_search(&start_char_idx) {
+            Ok(i) => i,
+            Err(i) => i, // first token whose start is > start_char_idx
+        };
+
+        let target = token_idx.saturating_add(offset_tokens);
+        if target >= self.token_start_char_idx.len() {
+            self.text.len()
+        } else {
+            self.token_start_char_idx[target]
+        }
+    }
 }
