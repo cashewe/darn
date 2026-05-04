@@ -8,13 +8,14 @@ impl RuleManager {
     pub fn build_punishment_vector(
         node_ranges: &NodeRanges,
         total_len: usize,
+        rules: Option<&[Rule]>,
     ) -> Vec<usize> {
-
+        let rules = rules.unwrap_or(&RULES);
         let mut result = vec![0usize; total_len];
 
         for (node_type, ranges) in node_ranges.ranges.iter() { // parallelise this later?
 
-            let rules = Self::_get_rules_for_node_type(node_type);
+            let rules = Self::_get_rules_for_node_type(node_type, rules);
             if rules.is_empty() {
                 continue;
             }
@@ -100,8 +101,8 @@ impl RuleManager {
     }
 
     /// filter registered rules to those of a give type
-    fn _get_rules_for_node_type(node_type: NodeType) -> Vec<&'static Rule> {
-        RULES.iter()
+    fn _get_rules_for_node_type(node_type: NodeType, rules: &[Rule]) -> Vec<&'static Rule> {
+        rules.iter()
             .filter(|rule| rule.node_type == node_type)
             .collect()
     }
