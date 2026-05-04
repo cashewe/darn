@@ -1,20 +1,29 @@
 use pyo3::prelude::*;
 use crate::python_objects::{Chunk, Rule};
 use crate::md_parser::MdParser;
-use crate::rule_manager::RuleManager;
+use crate::rule_manager::{RuleManager, Rule as BackendRule};
 use crate::chunk_optimiser::{ChunkOptimiser, Granularity};
 
 /// chunker is the wrapper on the logic for splitting text
 /// it will become more elaborate with time, but theres a chance the users wont love it for that
 #[pyclass]
-pub struct Chunker;
+pub struct Chunker {
+    rules: Vec<Rule>,  // stored as Python rules; converted lazily per call
+}
 
 #[pymethods]
 impl Chunker {
 
     #[new]
-    fn new() -> Self {
-        Chunker
+    #[pyo3(signature = (rules=None))]
+    fn new(rules: Option<Vec<Rule>>) -> PyResult<Self> {
+        let backend_rules = rules
+            .unwrap_or_default()
+            .iter()
+            .map(BackendRule::try_from)
+            .collect::<PyResult<Vec<_>>>()?;
+
+        Ok(Chunker { rules: backend_rules })
     }
 
     /// split text using the power of wonderous mathematics

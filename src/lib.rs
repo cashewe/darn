@@ -4,12 +4,14 @@ mod rule_manager;
 mod chunk_optimiser;
 mod python_objects;
 
-use python_objects::{Chunk, Chunker};
+use python_objects::{Chunk, Chunker, PyNodeType, Rule};
 
 
 #[pymodule]
 fn darn_it(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Chunk>()?;
     m.add_class::<Chunker>()?;
+    m.add_class::<PyNodeType>()?;
+    m.add_class::<Rule>()?;
     Ok(())
 }
