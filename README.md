@@ -1,7 +1,7 @@
 # darn-it
 (`darn` - *Welsh*, meaning 'piece' or more favourably, 'chunk')
 
-Darn is a rust-backed tool for producing mathematically optimised 'chunks' from markdown-formatted string data. Due to its simple interface and mathematical accuracy, darn is recommended for use by teams looking to move quickly past the problem of chunking at scale and towards more interesting engineering feats - it is likely that specific chunking operations based on context will outpreform it for teams who have the time and desire to manually produce them.
+Darn is a rust-backed tool for producing mathematically optimised 'chunks' from markdown-formatted string data. Due to its simple interface and mathematical accuracy, darn is recommended for use by teams looking to move quickly past the problem of chunking at scale and towards more interesting engineering feats. for more on darn, see the accompanying [blog post](https://cashewe.github.io/blog/optimal-chunking-strats/)
 
 
 ## Setup
@@ -28,6 +28,7 @@ with open("file.md", "r") as f:
     text = f.read()
 
 chunker.get_chunks(text=text, chunk_size=500)
+```
 
 # overlapping chunks
 You can also specify an `overlap` argument to pull an extra number of units
@@ -39,16 +40,42 @@ window of context:
 chunker.get_chunks(text=text, chunk_size=500, overlap=50)
 ```
 
-and darn it will output a list of `Chunk` objects, which include the text of the chunk, along with the start and end index of the chunk for further inspection.
+darn will output a list of `Chunk` objects, which include the text of the chunk, along with the start and end index of the chunk for further inspection.
 
 for users who would prefer to use tokens over characters to perform the chunking (i.e. chunks will respect token boundaries, and your chunk_size will reflect max tokens not characters), you can use the `granularity` argument and set it to the string "tokens" i.e.
-
-**NOTE** darn assumes ASCII compliance. pre-cleaning to remove non-ASCII compliant characters should be performed by users of the package.
 
 ```
 chunker.get_chunks(text=text, chunk_size=500, granularity="tokens")
 ```
-sorry its not an Enum in python, maybe someday :(...
+
+For advanced usage, you may wish to define your own rules for darn to obey:
+
+```
+rules = [
+    Rule(
+        on_punishment="const",
+        on_scale=10,
+        off_punishment="const",
+        off_scale=0,
+        nodetype=PyNodeType.Sentence
+    )
+]
+chunker = Chunker(rules)
+
+chunker.get_chunks(readme, 500, "tokens", overlap=50))
+```
+
+a full list of acceptable punishment types is given below:
+
+| punishment | meaning |
+|------------|---------|
+| const | a static punishment value |
+| linear | a punishment value that increments by 1 per character, starting at the provided input |
+| reverse_linear | a punishment that decrements by 1 per character, starting at the provided input and stopping at 0 |
+| triangular | a punishment which peaks at the provided value in the middle of the structure, starting and ending at 0 |
+| inverse_triangular | a punishment which peaks at the start and end of the structure at the provided value, and hits 0 in the middle |
+
+**NOTE** darn assumes ASCII compliance. pre-cleaning to remove non-ASCII compliant characters should be performed by users of the package.
 
 ## The Maths Behind the Magic
 

@@ -8,13 +8,14 @@ impl RuleManager {
     pub fn build_punishment_vector(
         node_ranges: &NodeRanges,
         total_len: usize,
+        rules: Option<&[Rule]>,
     ) -> Vec<usize> {
-
+        let rules = rules.unwrap_or(&RULES);
         let mut result = vec![0usize; total_len];
 
         for (node_type, ranges) in node_ranges.ranges.iter() { // parallelise this later?
 
-            let rules = Self::_get_rules_for_node_type(node_type);
+            let rules = Self::_get_rules_for_node_type(node_type, rules);
             if rules.is_empty() {
                 continue;
             }
@@ -51,6 +52,7 @@ impl RuleManager {
             if cursor < start {
                 Self::_apply_segment(
                     rule.off_punishment,
+                    rule.off_scale,
                     cursor,
                     start,
                     output,
@@ -61,6 +63,7 @@ impl RuleManager {
             if start < end {
                 Self::_apply_segment(
                     rule.on_punishment,
+                    rule.on_scale,
                     start,
                     end,
                     output,
@@ -74,6 +77,7 @@ impl RuleManager {
         if cursor < total_len {
             Self::_apply_segment(
                 rule.off_punishment,
+                rule.off_scale,
                 cursor,
                 total_len,
                 output,
@@ -84,7 +88,8 @@ impl RuleManager {
     /// apply the punishment to the range described
     #[inline]
     fn _apply_segment(
-        f: fn(usize, &mut [usize]),
+        f: fn(usize, usize, &mut [usize]),
+        scale: usize,
         start: usize,
         end: usize,
         output: &mut [usize],
@@ -92,7 +97,7 @@ impl RuleManager {
         let len = end - start;
         let mut tmp = vec![0usize; len];
 
-        f(len, &mut tmp);
+        f(scale, len, &mut tmp);
 
         for (dst, val) in output[start..end].iter_mut().zip(tmp) {
             *dst += val;
@@ -100,8 +105,8 @@ impl RuleManager {
     }
 
     /// filter registered rules to those of a give type
-    fn _get_rules_for_node_type(node_type: NodeType) -> Vec<&'static Rule> {
-        RULES.iter()
+    fn _get_rules_for_node_type<'a>(node_type: NodeType, rules: &'a [Rule]) -> Vec<&'a Rule> {
+        rules.iter()
             .filter(|rule| rule.node_type == node_type)
             .collect()
     }
