@@ -5,89 +5,75 @@ use crate::rule_manager::punishments::{
 
 /// a rule defines the cost function on a given node
 pub struct Rule {
-    pub name: &'static str,
     pub on_punishment: PunishmentFn,
     pub off_punishment: PunishmentFn,
     pub node_type: NodeType,
 }
 
-/// rules assembled
-/// This will need extending, potentially need to find a more sustainable way to define them...
+/// this will be the default rules list, users can and maybe are encouraged
+/// to write their own replacements as it is, quite frankly, asssss
 pub static RULES: &[Rule] = &[
-    Rule {
-        name: "Dont cut paragraphs",
+    Rule { // Dont cut paragraphs.
         on_punishment: const_punishment::<50>,
         off_punishment: const_punishment::<0>,
         node_type: NodeType::Paragraph,
     },
-    Rule {
-        name: "Prefer cutting paragraphs in the center if neccessary.",
+    Rule { //Prefer cutting paragraphs in the center if neccessary.
         on_punishment: inverse_triangular_punishment::<50>,
         off_punishment: const_punishment::<0>,
         node_type: NodeType::Paragraph,
     },
-    Rule {
-        name: "Maintain some context after titles, and dont cut them",
+    Rule { // Maintain some context after titles, and dont cut them.
         on_punishment: const_punishment::<100>,
         off_punishment: reverse_linear_punishment,
         node_type: NodeType::Heading,
     },
-    Rule {
-        name: "Dont cut blockquotes",
+    Rule { // Dont cut blockquotes.
         on_punishment: const_punishment::<50>,
         off_punishment: const_punishment::<0>,
         node_type: NodeType::Blockquote,
     },
-    Rule {
-        name: "Dont cut code blocks",
+    Rule { // Dont cut code blocks.
         on_punishment: const_punishment::<50>,
         off_punishment: const_punishment::<0>,
         node_type: NodeType::Code,
     },
-    Rule {
-        name: "Dont cut words",
+    Rule { // Dont cut words.
         on_punishment: const_punishment::<150>,
         off_punishment: const_punishment::<0>,
         node_type: NodeType::Word,
     },
-    Rule {
-        name: "Dont cut sentences",
+    Rule { // Dont cut sentences.
         on_punishment: const_punishment::<100>,
         off_punishment: const_punishment::<0>,
         node_type: NodeType::Sentence,
     },
-    Rule {
-        name: "Dont cut tables",
+    Rule { // Dont cut tables.
         on_punishment: const_punishment::<50>,
         off_punishment: const_punishment::<0>,
         node_type: NodeType::Table,
     },
-    Rule {
-        name: "Dont cut table rows",
+    Rule { // Dont cut table rows.
         on_punishment: const_punishment::<50>,
         off_punishment: const_punishment::<0>,
         node_type: NodeType::TableRow,
     },
-    Rule {
-        name: "Dont cut table cells",
+    Rule { // Dont cut table cells.
         on_punishment: const_punishment::<100>,
         off_punishment: const_punishment::<0>,
         node_type: NodeType::TableCell,
     },
-    Rule {
-        name: "Dont cut lists",
+    Rule { // Dont cut lists.
         on_punishment: const_punishment::<50>,
         off_punishment: const_punishment::<0>,
         node_type: NodeType::List,
     },
-    Rule {
-        name: "Dont cut list items",
+    Rule { // Dont cut list items.
         on_punishment: const_punishment::<100>,
         off_punishment: const_punishment::<0>,
         node_type: NodeType::ListItem,
     },
-    Rule {
-        name: "Prefer cutting lists in the center if neccessary.",
+    Rule { // Prefer cutting lists in the center if neccessary.
         on_punishment: inverse_triangular_punishment::<50>,
         off_punishment: const_punishment::<0>,
         node_type: NodeType::List,
