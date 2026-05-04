@@ -4,6 +4,7 @@ use crate::rule_manager::punishments::{
 };
 
 /// a rule defines the cost function on a given node
+#[derive(Clone)]
 pub struct Rule {
     pub on_punishment: PunishmentFn,
     pub on_scale: usize,

@@ -8,7 +8,7 @@ use crate::chunk_optimiser::{ChunkOptimiser, Granularity};
 /// it will become more elaborate with time, but theres a chance the users wont love it for that
 #[pyclass]
 pub struct Chunker {
-    rules: Vec<Rule>,  // stored as Python rules; converted lazily per call
+    rules: Vec<BackendRule>,
 }
 
 #[pymethods]
@@ -29,10 +29,14 @@ impl Chunker {
     /// split text using the power of wonderous mathematics
     #[pyo3(signature = (text, chunk_size, granularity="characters", model="gpt-4o-mini", overlap=0))]
     fn get_chunks(&self, text: &str, chunk_size: usize, granularity: &str, model: &str, overlap: usize) -> PyResult<Vec<Chunk>> {
-
+        let rules_slice = if self.rules.is_empty() {
+            None
+        } else {
+            Some(self.rules.as_slice())
+        };
         let node_ranges = MdParser::parse(text);
         let cost_vector =
-            RuleManager::build_punishment_vector(&node_ranges, text.len());
+            RuleManager::build_punishment_vector(&node_ranges, text.len(), rules_slice);
         
         let optimiser = ChunkOptimiser::new(text, cost_vector, model);
         let granularity = match granularity { // prefer not to have pyo3 dep in other modules
