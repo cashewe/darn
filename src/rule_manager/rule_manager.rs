@@ -88,7 +88,7 @@ impl RuleManager {
     /// apply the punishment to the range described
     #[inline]
     fn _apply_segment(
-        f: fn(usize, &mut [usize]),
+        f: fn(usize, usize, &mut [usize]),
         scale: usize,
         start: usize,
         end: usize,
@@ -105,7 +105,7 @@ impl RuleManager {
     }
 
     /// filter registered rules to those of a give type
-    fn _get_rules_for_node_type(node_type: NodeType, rules: &[Rule]) -> Vec<&'static Rule> {
+    fn _get_rules_for_node_type<'a>(node_type: NodeType, rules: &'a [Rule]) -> Vec<&'a Rule> {
         rules.iter()
             .filter(|rule| rule.node_type == node_type)
             .collect()

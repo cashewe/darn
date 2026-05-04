@@ -1,5 +1,5 @@
 use crate::md_parser::NodeType;
-use crate::rule_manager::punishments::{
+use crate::rule_manager::{
     const_punishment, inverse_triangular_punishment, reverse_linear_punishment, PunishmentFn,
 };
 
