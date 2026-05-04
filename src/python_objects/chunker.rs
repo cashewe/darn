@@ -1,5 +1,5 @@
 use pyo3::prelude::*;
-use crate::python_objects::Chunk;
+use crate::python_objects::{Chunk, Rule};
 use crate::md_parser::MdParser;
 use crate::rule_manager::RuleManager;
 use crate::chunk_optimiser::{ChunkOptimiser, Granularity};
