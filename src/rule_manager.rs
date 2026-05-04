@@ -4,4 +4,4 @@ mod punishments;
 
 pub use rules::{RULES, Rule};
 pub use rule_manager::RuleManager;
-pub use punishments::{PunishmentFn, const_punishment, inverse_triangular_punishment, reverse_linear_punishment};
+pub use punishments::{PunishmentFn, const_punishment, inverse_triangular_punishment, reverse_linear_punishment, lookup_punishment};
