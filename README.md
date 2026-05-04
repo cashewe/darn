@@ -65,6 +65,16 @@ chunker = Chunker(rules)
 chunker.get_chunks(readme, 500, "tokens", overlap=50))
 ```
 
+a full list of acceptable punishment types is given below:
+
+| punishment | meaning |
+|------------|---------|
+| const | a static punishment value |
+| linear | a punishment value that increments by 1 per character, starting at the provided input |
+| reverse_linear | a punishment that decrements by 1 per character, starting at the provided input and stopping at 0 |
+| triangular | a punishment which peaks at the provided value in the middle of the structure, starting and ending at 0 |
+| inverse_triangular | a punishment which peaks at the start and end of the structure at the provided value, and hits 0 in the middle |
+
 **NOTE** darn assumes ASCII compliance. pre-cleaning to remove non-ASCII compliant characters should be performed by users of the package.
 
 ## The Maths Behind the Magic

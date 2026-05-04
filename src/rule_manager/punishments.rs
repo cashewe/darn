@@ -71,8 +71,8 @@ pub fn lookup_punishment(name: &str) -> Option<PunishmentFn> {
     match name {
         "const" => Some(const_punishment),
         "linear" => Some(linear_punishment),
-        "reverse_linear" => Some(linear_punishment),
         "inverse_triangular" => Some(inverse_triangular_punishment),
+        "triangular" => Some(triangular_punishment),
         "reverse_linear" => Some(reverse_linear_punishment),
         _ => None,
     }
