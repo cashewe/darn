@@ -52,6 +52,7 @@ impl RuleManager {
             if cursor < start {
                 Self::_apply_segment(
                     rule.off_punishment,
+                    rule.off_scale,
                     cursor,
                     start,
                     output,
@@ -62,6 +63,7 @@ impl RuleManager {
             if start < end {
                 Self::_apply_segment(
                     rule.on_punishment,
+                    rule.on_scale,
                     start,
                     end,
                     output,
@@ -75,6 +77,7 @@ impl RuleManager {
         if cursor < total_len {
             Self::_apply_segment(
                 rule.off_punishment,
+                rule.off_scale,
                 cursor,
                 total_len,
                 output,
@@ -86,6 +89,7 @@ impl RuleManager {
     #[inline]
     fn _apply_segment(
         f: fn(usize, &mut [usize]),
+        scale: usize,
         start: usize,
         end: usize,
         output: &mut [usize],
@@ -93,7 +97,7 @@ impl RuleManager {
         let len = end - start;
         let mut tmp = vec![0usize; len];
 
-        f(len, &mut tmp);
+        f(scale, len, &mut tmp);
 
         for (dst, val) in output[start..end].iter_mut().zip(tmp) {
             *dst += val;

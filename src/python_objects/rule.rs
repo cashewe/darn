@@ -1,7 +1,7 @@
 use pyo3::prelude::*;
 use crate::python_objects::PyNodeType;
 use crate::rule_manager::Rule as BackendRule;
-use crate::punishments::lookup_punishment;
+use crate::rule_manager::punishments::lookup_punishment;
 
 /// the Rule defines the punishment we will enact upon our poor text
 #[pyclass]
