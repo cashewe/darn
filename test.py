@@ -1,6 +1,6 @@
 from darn_it import (
     Chunker,
-    NodeType,
+    PyNodeType,
     Rule,
 )
 
@@ -15,7 +15,7 @@ rules = [
         on_scale=10,
         off_punishment="const",
         off_scale=0,
-        nodetype=NodeType.Sentence
+        nodetype=PyNodeType.Sentence
     )
 ]
 print(Chunker(rules).get_chunks(readme, 500, "tokens", overlap=50))

@@ -53,3 +53,28 @@ impl TryFrom<&Rule> for BackendRule {
         })
     }
 }
+
+/// had to ask claude for this - its a neccessity for pyobjects that the user can create apaz
+#[pymethods]
+impl Rule {
+    #[new]
+    pub fn new(
+        nodetype: PyNodeType,
+        on_punishment: String,
+        on_scale: usize,
+        off_punishment: String,
+        off_scale: usize,
+    ) -> PyResult<Self> {
+        // validate punishment names eagerly
+        lookup_punishment(&on_punishment)
+            .ok_or_else(|| pyo3::exceptions::PyValueError::new_err(
+                format!("Unknown on_punishment '{}'", on_punishment)
+            ))?;
+        lookup_punishment(&off_punishment)
+            .ok_or_else(|| pyo3::exceptions::PyValueError::new_err(
+                format!("Unknown off_punishment '{}'", off_punishment)
+            ))?;
+
+        Ok(Self { nodetype, on_punishment, on_scale, off_punishment, off_scale })
+    }
+}
