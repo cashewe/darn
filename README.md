@@ -1,4 +1,5 @@
 # darn-it
+![piccy](docs/mathematically_optimised_chunking.jpg)
 (`darn` - *Welsh*, 'därn', meaning 'piece' or more favourably, 'chunk')
 
 Darn is a python tool for producing optimal 'chunks' from markdown-formatted string data. The tool makes use of a novel 'punishment' based approach to determining chunk boundaries, which in practice can be seen to be an improvement over traditional "semantic" chunking methods. To avoid adding unexpected behaviours (hidden text cleaning etc...), `darn` assumes [ASCII](https://www.ascii-code.com/) compliance. pre-cleaning to remove non-ASCII compliant characters should be performed by users of the package ahead of time to avoid errors in processing.
