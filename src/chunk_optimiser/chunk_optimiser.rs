@@ -9,13 +9,13 @@ pub enum Granularity {
 
 pub struct ChunkOptimiser<'a> {
     text: &'a str,  // needed incase we tokenise
-    punishments: Vec<usize>,
+    punishments: &'a Vec<usize>,
     token_start_char_idx: Vec<usize>  // maps characters in tokens to the original indices
 }
 
 impl<'a> ChunkOptimiser<'a> {
     /// create the token to text mapping
-    pub fn new(text: &'a str, punishments: Vec<usize>, model: &str) -> Self {
+    pub fn new(text: &'a str, punishments: &'a Vec<usize>, model: &str) -> Self {
         let token_start_char_idx = Self::build_token_alignment(text, model);
 
         Self {

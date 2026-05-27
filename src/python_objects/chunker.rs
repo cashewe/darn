@@ -1,5 +1,5 @@
 use pyo3::prelude::*;
-use crate::python_objects::{Chunk, Rule};
+use crate::python_objects::{Chunk, ChunkedDocument, Rule};
 use crate::md_parser::MdParser;
 use crate::rule_manager::{RuleManager, Rule as BackendRule};
 use crate::chunk_optimiser::{ChunkOptimiser, Granularity};
@@ -28,7 +28,7 @@ impl Chunker {
 
     /// split text using the power of wonderous mathematics
     #[pyo3(signature = (text, chunk_size, granularity="characters", model="gpt-4o-mini", overlap=0))]
-    fn get_chunks(&self, text: &str, chunk_size: usize, granularity: &str, model: &str, overlap: usize) -> PyResult<Vec<Chunk>> {
+    fn get_chunks(&self, text: &str, chunk_size: usize, granularity: &str, model: &str, overlap: usize) -> PyResult<ChunkedDocument> {
         let rules_slice = if self.rules.is_empty() {
             None
         } else {
@@ -38,7 +38,7 @@ impl Chunker {
         let cost_vector =
             RuleManager::build_punishment_vector(&node_ranges, text.len(), rules_slice);
         
-        let optimiser = ChunkOptimiser::new(text, cost_vector, model);
+        let optimiser = ChunkOptimiser::new(text, &cost_vector, model);
         let granularity = match granularity { // prefer not to have pyo3 dep in other modules
             "characters" => Granularity::Characters,
             "tokens" => Granularity::Tokens,
@@ -88,6 +88,11 @@ impl Chunker {
             });
         }
 
-        Ok(chunks)
+        let chunked_document = ChunkedDocument {
+            chunks: chunks,
+            punishments: cost_vector.clone(), // need to add the punishments here...
+        };
+
+        Ok(chunked_document)
     }
 }
