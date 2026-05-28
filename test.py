@@ -18,4 +18,14 @@ rules = [
         nodetype=PyNodeType.Sentence
     )
 ]
-print(Chunker(rules).get_chunks(readme, 500, "tokens", overlap=50))
+
+chunks = Chunker(rules).get_chunks(readme, 100, "tokens", overlap=50)
+print(chunks.chunks)
+
+import tempfile, webbrowser
+
+svg = chunks.analyse(5)
+
+with tempfile.NamedTemporaryFile(suffix=".svg", delete=False, mode="w") as f:
+    f.write(svg)
+    webbrowser.open(f"file://{f.name}")
