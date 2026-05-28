@@ -14,6 +14,9 @@ pub struct ChunkedDocument {
 
     #[pyo3(get)]
     pub(crate) punishments: Vec<usize>, // this is used for the anayliser... does it need to be public? does it help if it is??
+
+    #[pyo3(get)]
+    pub punishment_breakdown: Vec<Vec<usize>>, // the breakdowns xoxo
 }
 
 

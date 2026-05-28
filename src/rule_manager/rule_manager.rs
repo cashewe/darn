@@ -1,6 +1,14 @@
 use crate::md_parser::{NodeType, NodeStartEnd, NodeRanges};
 use crate::rule_manager::{RULES, Rule};
 
+
+/// the output vector of punishments
+#[derive(Clone)]
+pub struct PunishmentVector {
+    pub totals:   Vec<usize>,
+    pub per_rule: Vec<Vec<usize>>,
+}
+
 pub struct RuleManager;
 
 impl RuleManager {
@@ -9,28 +17,23 @@ impl RuleManager {
         node_ranges: &NodeRanges,
         total_len: usize,
         rules: Option<&[Rule]>,
-    ) -> Vec<usize> {
+    ) -> PunishmentVector {
         let rules = rules.unwrap_or(&RULES);
-        let mut result = vec![0usize; total_len];
-
-        for (node_type, ranges) in node_ranges.ranges.iter() { // parallelise this later?
-
-            let rules = Self::_get_rules_for_node_type(node_type, rules);
-            if rules.is_empty() {
-                continue;
-            }
-
-            for rule in rules {
-                Self::_apply_rule(
-                    rule,
-                    ranges,
-                    total_len,
-                    &mut result,
-                );
+        let mut per_rule = vec![vec![0usize; total_len]; rules.len()];
+        
+        for (node_type, ranges) in node_ranges.ranges.iter() {
+            for (i, rule) in rules.iter().enumerate() {
+                if rule.node_type != node_type { continue; }
+                Self::_apply_rule(rule, ranges, total_len, &mut per_rule[i]);
             }
         }
 
-        result
+        let totals = per_rule.iter().fold(vec![0usize; total_len], |mut acc, v| {
+            acc.iter_mut().zip(v).for_each(|(a, x)| *a += x);
+            acc
+        });
+
+        PunishmentVector { totals, per_rule }
     }
 
     /// apply the rule to the given ranges for the nodetype.
@@ -102,12 +105,5 @@ impl RuleManager {
         for (dst, val) in output[start..end].iter_mut().zip(tmp) {
             *dst += val;
         }
-    }
-
-    /// filter registered rules to those of a give type
-    fn _get_rules_for_node_type<'a>(node_type: NodeType, rules: &'a [Rule]) -> Vec<&'a Rule> {
-        rules.iter()
-            .filter(|rule| rule.node_type == node_type)
-            .collect()
     }
 }

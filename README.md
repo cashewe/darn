@@ -42,7 +42,7 @@ chunker = Chunker(
 with open("file.md", "r") as f:
     text = f.read()
 
-chunker.get_chunks(
+chunks = chunker.get_chunks(
     text=text, 
     chunk_size=500,
     # granularity="tokens", # either "tokens" or "characters"
@@ -62,3 +62,4 @@ A full list of currently supported punishment functions for rules is given below
 | triangular | a punishment which peaks at the provided value in the middle of the structure, starting and ending at 0 |
 | inverse_triangular | a punishment which peaks at the start and end of the structure at the provided value, and hits 0 in the middle |
 
+When settling on rules, you may find the `punishments` and `punishment_breakdown` attributes of the output object from `get_chunks()` to be of use - the `punishment_breakdown` shows the punishments attributable to each rule in order whilst the `punishments` attribute gives the summed punishment across all rules.

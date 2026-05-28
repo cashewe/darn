@@ -38,7 +38,7 @@ impl Chunker {
         let cost_vector =
             RuleManager::build_punishment_vector(&node_ranges, text.len(), rules_slice);
         
-        let optimiser = ChunkOptimiser::new(text, &cost_vector, model);
+        let optimiser = ChunkOptimiser::new(text, &cost_vector.totals, model);
         let granularity = match granularity { // prefer not to have pyo3 dep in other modules
             "characters" => Granularity::Characters,
             "tokens" => Granularity::Tokens,
@@ -90,7 +90,8 @@ impl Chunker {
 
         let chunked_document = ChunkedDocument {
             chunks: chunks,
-            punishments: cost_vector.clone(), // need to add the punishments here...
+            punishments: cost_vector.totals.clone(),
+            punishment_breakdown: cost_vector.per_rule.clone()
         };
 
         Ok(chunked_document)
