@@ -13,10 +13,10 @@ pub struct ChunkedDocument {
     pub chunks: Vec<Chunk>,
 
     #[pyo3(get)]
-    pub(crate) punishments: Vec<usize>, // this is used for the anayliser... does it need to be public? does it help if it is??
+    pub(crate) punishments: Option<Vec<usize>>, // this is used for the anayliser... does it need to be public? does it help if it is??
 
     #[pyo3(get)]
-    pub punishment_breakdown: Vec<Vec<usize>>, // the breakdowns xoxo
+    pub punishment_breakdown: Option<Vec<Vec<usize>>>, // the breakdowns xoxo
 }
 
 
@@ -35,6 +35,9 @@ impl ChunkedDocument {
     /// I did not want to learn to write graphing code so i used claude for this one and oh boy does it show
     /// insanely verbose no?
     pub fn analyse(&self, chunk_idx: usize) -> PyResult<String> {
+        let Some(punishments) = &self.punishments else {
+            return Ok(String::new());
+        };
         if chunk_idx >= self.chunks.len() {
             return Err(PyIndexError::new_err(format!(
                 "chunk_index {chunk_idx} is out of range \
@@ -53,10 +56,10 @@ impl ChunkedDocument {
             .last()
             .unwrap()
             .end_index
-            .min(self.punishments.len());
+            .min(punishments.len());
 
         let data: Vec<(usize, usize)> = (range_start..range_end)
-            .map(|i| (i, self.punishments[i]))
+            .map(|i| (i, punishments[i]))
             .collect();
 
         let y_max = data.iter().map(|&(_, y)| y).max().unwrap_or(0);

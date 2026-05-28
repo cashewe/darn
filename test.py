@@ -19,6 +19,6 @@ rules = [
     )
 ]
 
-chunks = Chunker(rules).get_chunks(readme, 100, "tokens", overlap=50)
+chunks = Chunker(rules).get_chunks(readme, 100, "tokens", overlap=50, return_vectors=False)
 print(chunks.chunks)
 print(chunks.punishment_breakdown)

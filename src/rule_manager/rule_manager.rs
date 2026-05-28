@@ -6,7 +6,7 @@ use crate::rule_manager::{RULES, Rule};
 #[derive(Clone)]
 pub struct PunishmentVector {
     pub totals:   Vec<usize>,
-    pub per_rule: Vec<Vec<usize>>,
+    pub per_rule: Option<Vec<Vec<usize>>>,
 }
 
 pub struct RuleManager;
@@ -17,6 +17,7 @@ impl RuleManager {
         node_ranges: &NodeRanges,
         total_len: usize,
         rules: Option<&[Rule]>,
+        return_vectors: bool,
     ) -> PunishmentVector {
         let rules = rules.unwrap_or(&RULES);
         let mut per_rule = vec![vec![0usize; total_len]; rules.len()];
@@ -33,7 +34,7 @@ impl RuleManager {
             acc
         });
 
-        PunishmentVector { totals, per_rule }
+        PunishmentVector { totals,  per_rule: return_vectors.then_some(per_rule) }
     }
 
     /// apply the rule to the given ranges for the nodetype.

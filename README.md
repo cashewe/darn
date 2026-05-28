@@ -48,6 +48,7 @@ chunks = chunker.get_chunks(
     # granularity="tokens", # either "tokens" or "characters"
     # model="gpt-4o", # only consumed if `granularity` is set to `tokens`
     # overlap=50, # respects `granularity` variable
+    # return_vectors=true, # turn on to include the full punishment vectors per rule in the output object
 )
 ```
 
@@ -62,4 +63,4 @@ A full list of currently supported punishment functions for rules is given below
 | triangular | a punishment which peaks at the provided value in the middle of the structure, starting and ending at 0 |
 | inverse_triangular | a punishment which peaks at the start and end of the structure at the provided value, and hits 0 in the middle |
 
-When settling on rules, you may find the `punishments` and `punishment_breakdown` attributes of the output object from `get_chunks()` to be of use - the `punishment_breakdown` shows the punishments attributable to each rule in order whilst the `punishments` attribute gives the summed punishment across all rules.
+When settling on rules, you may find the `punishments` and `punishment_breakdown` attributes of the output object from `get_chunks()` to be of use. To access them, turn the `return_vectors` argument to `True`. The `punishment_breakdown` shows the punishments attributable to each rule in order whilst the `punishments` attribute gives the summed punishment across all rules. these are really intended for analytical use, not to be left on in production.

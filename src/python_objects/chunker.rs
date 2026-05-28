@@ -27,8 +27,8 @@ impl Chunker {
     }
 
     /// split text using the power of wonderous mathematics
-    #[pyo3(signature = (text, chunk_size, granularity="characters", model="gpt-4o-mini", overlap=0))]
-    fn get_chunks(&self, text: &str, chunk_size: usize, granularity: &str, model: &str, overlap: usize) -> PyResult<ChunkedDocument> {
+    #[pyo3(signature = (text, chunk_size, granularity="characters", model="gpt-4o-mini", overlap=0, return_vectors=false))]
+    fn get_chunks(&self, text: &str, chunk_size: usize, granularity: &str, model: &str, overlap: usize, return_vectors: bool) -> PyResult<ChunkedDocument> {
         let rules_slice = if self.rules.is_empty() {
             None
         } else {
@@ -36,7 +36,7 @@ impl Chunker {
         };
         let node_ranges = MdParser::parse(text);
         let cost_vector =
-            RuleManager::build_punishment_vector(&node_ranges, text.len(), rules_slice);
+            RuleManager::build_punishment_vector(&node_ranges, text.len(), rules_slice, return_vectors);
         
         let optimiser = ChunkOptimiser::new(text, &cost_vector.totals, model);
         let granularity = match granularity { // prefer not to have pyo3 dep in other modules
@@ -90,7 +90,7 @@ impl Chunker {
 
         let chunked_document = ChunkedDocument {
             chunks: chunks,
-            punishments: cost_vector.totals.clone(),
+            punishments: return_vectors.then_some(cost_vector.totals.clone()),
             punishment_breakdown: cost_vector.per_rule.clone()
         };
 
