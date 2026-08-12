@@ -1,7 +1,7 @@
 use pyo3::prelude::*;
 use crate::md_parser::NodeType;
 
-#[pyclass(eq, eq_int)]
+#[pyclass(eq, eq_int, from_py_object)]
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum PyNodeType {
     Root, Blockquote, FootnoteDefinition, MdxJsxFlowElement,

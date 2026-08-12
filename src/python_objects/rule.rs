@@ -3,7 +3,7 @@ use crate::python_objects::PyNodeType;
 use crate::rule_manager::{Rule as BackendRule, lookup_punishment};
 
 /// the Rule defines the punishment we will enact upon our poor text
-#[pyclass]
+#[pyclass(from_py_object)]
 #[derive(Clone)]
 pub struct Rule {
     #[pyo3(get)]

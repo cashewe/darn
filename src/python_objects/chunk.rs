@@ -3,7 +3,7 @@ use pyo3::prelude::*;
 
 /// the Chunk is the user frienlyl wrapper on the output text.
 /// it maintains enough context to provide value to the user, or so i hope...
-#[pyclass]
+#[pyclass(from_py_object)]
 #[derive(Clone)]
 pub struct Chunk {
     #[pyo3(get)]

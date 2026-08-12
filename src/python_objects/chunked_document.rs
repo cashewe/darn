@@ -4,7 +4,7 @@ use crate::python_objects::Chunk;
 
 
 /// chunked document contains everything a muzungu needs to recieve their chunks.
-#[pyclass]
+#[pyclass(from_py_object)]
 #[derive(Clone)]
 pub struct ChunkedDocument {
     #[pyo3(get)]
